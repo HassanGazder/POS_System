@@ -14,7 +14,7 @@ import { OverViewData } from '../../CommonData/Data/index';
 const OverView = () => {
     return (
         <React.Fragment>
-            <Col xl={8}>
+            <Col xl={12}>
                 <Card>
                     <CardBody>
                         <div className="d-flex align-items-center">

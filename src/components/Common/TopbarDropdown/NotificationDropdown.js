@@ -58,7 +58,7 @@ const NotificationDropdown = props => {
                   </div>
                 </div>
                 <div className="flex-grow-1">
-                  <h6 className="mb-1">Your order is placed</h6>
+                  <h6 className="mb-1">Your order is</h6>
                   <div className="font-size-12 text-muted">
                     <p className="mb-1">If several languages coalesce the grammar</p>
                     <p className="mb-0"><i className="mdi mdi-clock-outline"></i> 3 min ago</p>

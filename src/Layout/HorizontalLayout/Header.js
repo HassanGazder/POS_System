@@ -144,9 +144,9 @@ const Header = (props) => {
               </div>
             </div>
 
-            <LanguageDropdown />
+            {/* <LanguageDropdown /> */}
 
-            <AppsDropdown />
+            {/* <AppsDropdown /> */}
 
             <div className="dropdown d-none d-lg-inline-block ms-1">
               <button
@@ -161,9 +161,9 @@ const Header = (props) => {
               </button>
             </div>
 
-            <NotificationDropdown />
+            {/* <NotificationDropdown /> */}
 
-            <ProfileMenu />
+            {/* <ProfileMenu /> */}
 
             <div
               className="dropdown d-inline-block"

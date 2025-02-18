@@ -17,14 +17,14 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ pending: 0, completed: 0, cancelled: 0 });
   const [transactions, setTransactions] = useState([]);
 
-  document.title = "Dashboard | Upzet - React Admin & Dashboard Template";
+  document.title = "Dashboard | Surgical Pos";
   return (
     <React.Fragment>
       <div className="page-content">
         <Container fluid={true}>
           <Breadcrumbs title="Upzet" breadcrumbItem="Dashboard" />
           {/* User Panel Charts */}
-          <UsePanel />
+          <UsePanel transactions={transactions}/>
 
           <Row>
             {/* Overview Chart */}

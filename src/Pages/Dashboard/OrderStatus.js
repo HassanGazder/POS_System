@@ -47,7 +47,7 @@ const OrderStatus = ({
                     </div>
                     <div className="flex-grow-1">
                       <p className="text-muted mb-2">
-                        Completed ({stats.completed})
+                      Delivered ({stats.completed})
                       </p>
                       <div className="progress progress-sm animated-progess">
                         <div

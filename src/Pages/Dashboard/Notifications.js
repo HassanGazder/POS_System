@@ -3,16 +3,18 @@ import { Link } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import { Card, CardBody, CardTitle, Col } from "reactstrap";
 
-const Notifications = ({ transactions = [] }) => { // Default to empty array
+const Notifications = ({ transactions = [] }) => {
+  // Default to empty array
   const [borrowNotifications, setBorrowNotifications] = useState([]);
 
   useEffect(() => {
-    // Update notifications whenever transactions change
+    // Filter transactions where prevAmount is entered
     const filteredTransactions = transactions
-      .filter((transaction) => transaction.paymentType === "To Be Paid")
+      .filter((transaction) => parseFloat(transaction.prevAmount) > 0) // Only include transactions with prevAmount
       .map((transaction) => ({
         id: transaction.clientId,
         name: transaction.clientName,
+        prevAmount: transaction.prevAmount, // Fetch prevAmount
         issueDate: transaction.issueDate,
       }));
 
@@ -43,6 +45,10 @@ const Notifications = ({ transactions = [] }) => { // Default to empty array
                         <div className="flex-grow-1 overflow-hidden">
                           <h5 className="font-size-14 mb-1">{item.name}</h5>
                           <p className="text-truncate mb-0">ID: {item.id}</p>
+                          <p className="text-truncate mb-0">
+                            Prev Amount: ${item.prevAmount}
+                          </p>{" "}
+                          {/* ✅ Show Prev Amount */}
                         </div>
                         <div className="flex-shrink-0 font-size-13 text-end">
                           {item.issueDate}

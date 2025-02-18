@@ -1,24 +1,28 @@
-import React, { useState, useEffect,useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Row, Col } from "reactstrap";
 import { Modal, Button, Form, Table } from "react-bootstrap";
 // import OrderStatus from "./OrderStatus";
 const LatestTransaction = ({ setStats, setTransactions }) => {
   // const [transactions, setTransactions] = useState([]);
   const [transactions, setLocalTransactions] = useState([]);
+  const getCurrentDate = () => {
+    return new Date().toISOString().split("T")[0]; // Formats to YYYY-MM-DD
+  };
   const [formData, setFormData] = useState({
     clientId: "1",
-    clientName: "abc",
-    date: "03/05/2004",
-    price: "1",
+    clientName: "hassan",
+    amount: "10",
     quantity: "1",
     type: "abc",
-    weight: "1",
-    color: "abc",
-    issueDate: "03/05/2005",
-    deliveryDate: "03/05/2003",
+    weight: "10gm",
+    color: "white",
+    issueDate: getCurrentDate(),
+    deliveryDate: "01/05/2003",
     productId: "1",
-    paymentType: "cash",
-    status: "pending",
+    status: "",
+    prevAmount: "10",
+    billNo: "10",
+    totalAmount: "", //
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -30,47 +34,46 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // Handle radio button change
-  const handlePaymentTypeChange = (e) => {
-    setFormData({ ...formData, paymentType: e.target.value });
-  };
-
-  // Handle adding/updating a record
   const handleAddRecord = () => {
-    const updatedTransactions = [...transactions, formData];
+    let updatedTransactions = [...transactions];
+
+    if (isEditMode) {
+      // ✅ Update the existing record instead of adding a new one
+      updatedTransactions[editIndex] = formData;
+      setIsEditMode(false);
+      setEditIndex(null);
+    } else {
+      // ✅ Add a new record if it's not in edit mode
+      updatedTransactions.push(formData);
+    }
+
     setLocalTransactions(updatedTransactions);
     setTransactions(updatedTransactions);
-    if (isEditMode) {
-      const updatedTransactions = [...transactions];
-      updatedTransactions[editIndex] = formData;
-      setTransactions(updatedTransactions);
-      setIsEditMode(false);
-    } else {
-      setTransactions([...transactions, formData]);
-    }
 
     // Reset form and close modal
     setFormData({
       clientId: "",
       clientName: "",
-      date: "",
-      price: "",
+      amount: "",
       quantity: "",
       type: "",
       weight: "",
       color: "",
-      issueDate: "",
+      issueDate: getCurrentDate(),
       deliveryDate: "",
       productId: "",
-      paymentType: "cash",
-      status: "pending",
+      status: "",
+      prevAmount: "",
+      billNo: "",
+      totalAmount: "",
     });
+
     setShowModal(false);
   };
 
   // Handle editing a record
   const handleEditRecord = (index) => {
-    setFormData(transactions[index]);
+    setFormData({ ...transactions[index] }); // ✅ Create a copy instead of referencing
     setEditIndex(index);
     setIsEditMode(true);
     setShowModal(true);
@@ -87,8 +90,12 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
   const calculateOrderStats = useCallback(() => {
     const totalOrders = transactions.length;
     const pending = transactions.filter((t) => t.status === "pending").length;
-    const completed = transactions.filter((t) => t.status === "completed").length;
-    const cancelled = transactions.filter((t) => t.status === "cancelled").length;
+    const completed = transactions.filter(
+      (t) => t.status === "completed"
+    ).length;
+    const cancelled = transactions.filter(
+      (t) => t.status === "cancelled"
+    ).length;
 
     return {
       pending,
@@ -104,6 +111,29 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
   useEffect(() => {
     setStats(calculateOrderStats()); // ✅ No more warning, because useCallback ensures stability
   }, [transactions, setStats, calculateOrderStats]); // Update stats whenever transactions change
+
+  const [isFormValid, setIsFormValid] = useState(false);
+
+  // Function to check if all fields are filled
+  useEffect(() => {
+    const isValid = Object.entries(formData).every(([key, value]) => {
+      if (key === "prevAmount") return true; // ✅ Allow prevAmount to be empty
+      return value.trim() !== "";
+    });
+
+    setIsFormValid(isValid);
+  }, [formData]);
+
+  // ✅ Automatically calculate Total Amount (prevAmount + amount)
+  useEffect(() => {
+    setFormData((prev) => ({
+      ...prev,
+      totalAmount: (
+        (prev.prevAmount ? parseFloat(prev.prevAmount) : 0) + // If prevAmount is empty, use 0
+        (prev.amount ? parseFloat(prev.amount) : 0)
+      ).toFixed(2),
+    }));
+  }, [formData.prevAmount, formData.amount]);
 
   return (
     <React.Fragment>
@@ -147,9 +177,10 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                     }}
                   >
                     <tr>
-                      <th style={{ minWidth: "150px" }}>ID & Name</th>
-                      <th>Date</th>
-                      <th>Price</th>
+                      <th>ID & Name</th>
+                      <th>Prev Amount</th>
+                      <th>Product Amount</th>
+                      <th>Total Amount</th>
                       <th>Quantity</th>
                       <th>Type</th>
                       <th>Weight</th>
@@ -157,14 +188,12 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                       <th>Issue Date</th>
                       <th>Delivery Date</th>
                       <th>Product ID</th>
-                      <th>Payment Type</th>
-                      <th>Amount</th>
+                      <th>Bill No</th>
                       <th>Status</th>
-                      <th style={{ minWidth: "150px", textAlign: "center" }}>
-                        Action
-                      </th>
+                      <th style={{ textAlign: "center" }}>Action</th>
                     </tr>
                   </thead>
+
                   <tbody>
                     {transactions.length === 0 ? (
                       <tr>
@@ -183,8 +212,9 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                               </small>
                             </div>
                           </td>
-                          <td>{item.date}</td>
-                          <td>${item.price}</td>
+                          <td>${item.prevAmount}</td>
+                          <td>${item.amount}</td>
+                          <td>${item.totalAmount}</td>
                           <td>{item.quantity}</td>
                           <td>{item.type}</td>
                           <td>{item.weight}</td>
@@ -192,18 +222,8 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                           <td>{item.issueDate}</td>
                           <td>{item.deliveryDate}</td>
                           <td>{item.productId}</td>
-                          <td>{item.paymentType}</td>
-                          <td>$ {item.quantity * item.price}</td>
-                          <td>
-                            {item.status === "pending" ? (
-                              <i className="mdi mdi-checkbox-blank-circle me-1 text-warning"></i>
-                            ) : item.status === "completed" ? (
-                              <i className="mdi mdi-checkbox-blank-circle me-1 text-success"></i>
-                            ) : item.status === "cancelled" ? (
-                              <i className="mdi mdi-checkbox-blank-circle me-1 text-danger"></i>
-                            ) : null}
-                            {item.status}
-                          </td>
+                          <td>{item.billNo}</td>
+                          <td>{item.status}</td>
                           <td style={{ textAlign: "center" }}>
                             <div className="d-flex justify-content-center gap-2">
                               <Button
@@ -231,9 +251,6 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
             </div>
           </div>
         </Col>
-
-        {/* Order Stats Component */}
-        {/* <OrderStatus stats={calculateOrderStats()} /> */}
       </Row>
 
       {/* Modal */}
@@ -273,18 +290,35 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
             </Row>
 
-            {/* Date Fields (With Calendar Popup) */}
-            <Form.Group className="mb-3">
-              <Form.Label>Date</Form.Label>
-              <Form.Control
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleInputChange}
-                required
-              />
-            </Form.Group>
+            {/* Previous Amount & Bill No */}
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Previous Amount</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="prevAmount"
+                    value={formData.prevAmount}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Bill No</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="billNo"
+                    value={formData.billNo}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
 
+            {/* Issue Date & Delivery Date */}
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group>
@@ -312,21 +346,32 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
             </Row>
 
-            {/* Price & Quantity */}
+            {/* Product Amount, Total Amount & Quantity */}
             <Row className="mb-3">
-              <Col md={6}>
+              <Col md={4}>
                 <Form.Group>
-                  <Form.Label>Price</Form.Label>
+                  <Form.Label>Product Amount</Form.Label>
                   <Form.Control
                     type="number"
-                    name="price"
-                    value={formData.price}
+                    name="amount"
+                    value={formData.amount}
                     onChange={handleInputChange}
                     required
                   />
                 </Form.Group>
               </Col>
-              <Col md={6}>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>Total Amount</Form.Label>
+                  <Form.Control
+                    type="number"
+                    name="totalAmount"
+                    value={formData.totalAmount}
+                    readOnly
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
                 <Form.Group>
                   <Form.Label>Quantity</Form.Label>
                   <Form.Control
@@ -340,7 +385,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
             </Row>
 
-            {/* Type, Weight, Color */}
+            {/* Type, Weight & Color */}
             <Row className="mb-3">
               <Col md={4}>
                 <Form.Group>
@@ -380,7 +425,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
             </Row>
 
-            {/* Product ID & Payment Type */}
+            {/* Product ID & Status */}
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group>
@@ -396,50 +441,32 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Payment Type</Form.Label>
-                  <br />
-                  <Form.Check
-                    inline
-                    label="Cash"
-                    type="radio"
-                    name="paymentType"
-                    value="cash"
-                    checked={formData.paymentType === "cash"}
-                    onChange={handlePaymentTypeChange}
-                  />
-                  <Form.Check
-                    inline
-                    label="To Be Paid"
-                    type="radio"
-                    name="paymentType"
-                    value="To Be Paid"
-                    checked={formData.paymentType === "To Be Paid"}
-                    onChange={handlePaymentTypeChange}
-                  />
+                  <Form.Label>Status</Form.Label>
+                  <Form.Select
+                    name="status"
+                    value={formData.status}
+                    onChange={handleInputChange}
+                    required
+                  >
+                    <option value="">Select Status</option>
+                    <option value="pending">Pending</option>
+                    <option value="completed">Delivered</option>
+                    {isEditMode && <option value="cancelled">Cancelled</option>}
+                  </Form.Select>
                 </Form.Group>
               </Col>
             </Row>
-
-            {/* Status Field (Only "Cancelled" Appears in Edit Mode) */}
-            <Form.Group className="mb-3">
-              <Form.Label>Status</Form.Label>
-              <Form.Select
-                name="status"
-                value={formData.status}
-                onChange={handleInputChange}
-              >
-                <option value="pending">Pending</option>
-                <option value="completed">Completed</option>
-                {isEditMode && <option value="cancelled">Cancelled</option>}
-              </Form.Select>
-            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Close
           </Button>
-          <Button variant="primary" onClick={handleAddRecord}>
+          <Button
+            variant="primary"
+            onClick={handleAddRecord}
+            disabled={!isFormValid}
+          >
             {isEditMode ? "Update Record" : "Add Record"}
           </Button>
         </Modal.Footer>

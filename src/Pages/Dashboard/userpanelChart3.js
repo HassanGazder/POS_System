@@ -1,8 +1,8 @@
 import React from "react";
 import ReactApexChart from "react-apexcharts";
 
-const RadialChart3 = () => {
-    const series = [54];
+const RadialChart3 = ({percentage = 0}) => {
+    const series = [percentage || 0];
     const radialoptions = {
         chart: {
             type: 'radialBar',

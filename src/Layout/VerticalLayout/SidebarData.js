@@ -11,12 +11,12 @@ const SidebarData = [
         bgcolor: "bg-primary",
         badgeValue: "3"
     },
-    // {
-    //     label: "Calendar",
-    //     icon: "mdi mdi-calendar-outline",
-    //     isHasArrow: true,
-    //     url: "/calendar",
-    // },
+    {
+        label: "Tcs",
+        icon: "mdi mdi-calendar-outline",
+        isHasArrow: true,
+        url: "/calendar",
+    },
     // {
     //     label: "Email",
     //     icon: "mdi mdi-email-outline",
