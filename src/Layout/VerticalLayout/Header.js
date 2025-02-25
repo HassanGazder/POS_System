@@ -3,16 +3,16 @@ import React, { useState } from "react";
 import { connect } from "react-redux";
 import { Link } from "react-router-dom";
 
-import LanguageDropdown from "../../components/Common/TopbarDropdown/LanguageDropdown";
-import NotificationDropdown from "../../components/Common/TopbarDropdown/NotificationDropdown";
+// import LanguageDropdown from "../../components/Common/TopbarDropdown/LanguageDropdown";
+// import NotificationDropdown from "../../components/Common/TopbarDropdown/NotificationDropdown";
 
 //i18n
 import { withTranslation } from "react-i18next";
 
 //import images
 import logoSm from "../../assets/images/logo-sm.png";
-import logoDark from "../../assets/images/logo-dark.png";
-import logoLight from "../../assets/images/logo-light.png";
+// import logoDark from "../../assets/images/logo-dark.png";
+// import logoLight from "../../assets/images/logo-light.png";
 
 // Redux Store
 import {
@@ -20,8 +20,8 @@ import {
   toggleLeftmenu,
   changeSidebarType,
 } from "../../store/actions";
-import ProfileMenu from "../../components/Common/TopbarDropdown/ProfileMenu";
-import AppsDropdown from "../../components/Common/TopbarDropdown/AppsDropdown";
+// import ProfileMenu from "../../components/Common/TopbarDropdown/ProfileMenu";
+// import AppsDropdown from "../../components/Common/TopbarDropdown/AppsDropdown";
 
 const Header = (props) => {
   const [search, setsearch] = useState(false);
@@ -84,7 +84,7 @@ const Header = (props) => {
                   <img src={logoSm} alt="logo-sm-light" height="22" />
                 </span>
                 <span className="logo-lg">
-                  <h2 className="text-light mt-3">Surgical Pos</h2>
+                  <h2 className="text-light mt-3">Pharmacy Pos</h2>
                   {/* <img src={logoLight} alt="logo-light" height="24" /> */}
                 </span>
               </Link>

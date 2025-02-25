@@ -3,7 +3,7 @@ import UsePanel from "./UserPanel";
 import OrderStatus from "./OrderStatus";
 import Notifications from "./Notifications";
 import SocialSource from "./SocialSource";
-import OverView from "./OverView";
+// import OverView from "./OverView";
 // import RevenueByLocation from "./RevenueByLocation";
 import LatestTransation from "./LatestTransation";
 import { useState } from "react";
@@ -17,7 +17,7 @@ const Dashboard = () => {
   const [stats, setStats] = useState({ pending: 0, completed: 0, cancelled: 0 });
   const [transactions, setTransactions] = useState([]);
 
-  document.title = "Dashboard | Surgical Pos";
+  document.title = "Dashboard | Pharmacy Pos";
   return (
     <React.Fragment>
       <div className="page-content">
@@ -28,12 +28,12 @@ const Dashboard = () => {
 
           <Row>
             {/* Overview Chart */}
-            <OverView />
+            {/* <OverView /> */}
             {/* Social Source Chart */}
             <SocialSource />
           </Row>
 
-          <Row>
+          <Row className="mt-4">
             {/* Order Stats */}
             <OrderStatus stats={stats}/>
             {/* Notifications */}

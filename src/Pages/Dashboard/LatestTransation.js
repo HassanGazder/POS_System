@@ -5,24 +5,27 @@ import { Modal, Button, Form, Table } from "react-bootstrap";
 const LatestTransaction = ({ setStats, setTransactions }) => {
   // const [transactions, setTransactions] = useState([]);
   const [transactions, setLocalTransactions] = useState([]);
-  const getCurrentDate = () => {
-    return new Date().toISOString().split("T")[0]; // Formats to YYYY-MM-DD
-  };
+  // const getCurrentDate = () => {
+  //   return new Date().toISOString().split("T")[0]; // Formats to YYYY-MM-DD
+  // };
   const [formData, setFormData] = useState({
-    clientId: "1",
-    clientName: "hassan",
-    amount: "10",
-    quantity: "1",
-    type: "abc",
-    weight: "10gm",
-    color: "white",
-    issueDate: getCurrentDate(),
-    deliveryDate: "01/05/2003",
-    productId: "1",
-    status: "",
-    prevAmount: "10",
-    billNo: "10",
-    totalAmount: "", //
+    S_No: "1",
+    Care_Of: "hassan",
+    product: "10",
+    CompleteAddress: "1",
+    DoctorName: "abc",
+    Contact: "10gm",
+    SR_Name: "white",
+    HospitalName: "",
+    Delivery_Date: new Date().toISOString().split("T")[0],
+    Invoice_Number: "",
+    QtxSale: "10",
+    Amount: "10",
+    Dosage_Month: "",
+    Perform_By: "",
+    Payment_Reciving_Date: new Date().toISOString().split("T")[0],
+    Foc: "",
+    Status:""
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -52,20 +55,23 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
 
     // Reset form and close modal
     setFormData({
-      clientId: "",
-      clientName: "",
-      amount: "",
-      quantity: "",
-      type: "",
-      weight: "",
-      color: "",
-      issueDate: getCurrentDate(),
-      deliveryDate: "",
-      productId: "",
-      status: "",
-      prevAmount: "",
-      billNo: "",
-      totalAmount: "",
+      S_No: "1",
+      Care_Of: "hassan",
+      product: "10",
+      CompleteAddress: "1",
+      DoctorName: "abc",
+      Contact: "10gm",
+      SR_Name: "white",
+      HospitalName: "",
+      Delivery_Date: "1",
+      Invoice_Number: "",
+      QtxSale: "10",
+      Amount: "10",
+      Dosage_Month: "",
+      Perform_By: "",
+      Payment_Reciving_Date: "",
+      Foc: "",
+      Status:""
     });
 
     setShowModal(false);
@@ -89,19 +95,18 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
 
   const calculateOrderStats = useCallback(() => {
     const totalOrders = transactions.length;
-    const pending = transactions.filter((t) => t.status === "pending").length;
+    const pending = transactions.filter((t) => t.Status === "pending").length;
     const completed = transactions.filter(
-      (t) => t.status === "completed"
+      (t) => t.Status === "completed"
     ).length;
     const cancelled = transactions.filter(
-      (t) => t.status === "cancelled"
+      (t) => t.Status === "cancelled"
     ).length;
 
     return {
       pending,
       completed,
       cancelled,
-      totalOrders,
       pendingPercent: totalOrders ? (pending / totalOrders) * 100 : 0,
       completedPercent: totalOrders ? (completed / totalOrders) * 100 : 0,
       cancelledPercent: totalOrders ? (cancelled / totalOrders) * 100 : 0,
@@ -112,28 +117,28 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
     setStats(calculateOrderStats()); // ✅ No more warning, because useCallback ensures stability
   }, [transactions, setStats, calculateOrderStats]); // Update stats whenever transactions change
 
-  const [isFormValid, setIsFormValid] = useState(false);
+  // const [isFormValid, setIsFormValid] = useState(false);
 
   // Function to check if all fields are filled
-  useEffect(() => {
-    const isValid = Object.entries(formData).every(([key, value]) => {
-      if (key === "prevAmount") return true; // ✅ Allow prevAmount to be empty
-      return value.trim() !== "";
-    });
+  // useEffect(() => {
+  //   const isValid = Object.entries(formData).every(([key, value]) => {
+  //     if (key === "prevAmount") return true; // ✅ Allow prevAmount to be empty
+  //     return value.trim() !== "";
+  //   });
 
-    setIsFormValid(isValid);
-  }, [formData]);
+  //   setIsFormValid(isValid);
+  // }, [formData]);
 
   // ✅ Automatically calculate Total Amount (prevAmount + amount)
-  useEffect(() => {
-    setFormData((prev) => ({
-      ...prev,
-      totalAmount: (
-        (prev.prevAmount ? parseFloat(prev.prevAmount) : 0) + // If prevAmount is empty, use 0
-        (prev.amount ? parseFloat(prev.amount) : 0)
-      ).toFixed(2),
-    }));
-  }, [formData.prevAmount, formData.amount]);
+  // useEffect(() => {
+  //   setFormData((prev) => ({
+  //     ...prev,
+  //     totalAmount: (
+  //       (prev.prevAmount ? parseFloat(prev.prevAmount) : 0) + // If prevAmount is empty, use 0
+  //       (prev.amount ? parseFloat(prev.amount) : 0)
+  //     ).toFixed(2),
+  //   }));
+  // }, [formData.prevAmount, formData.amount]);
 
   return (
     <React.Fragment>
@@ -177,53 +182,53 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                     }}
                   >
                     <tr>
-                      <th>ID & Name</th>
-                      <th>Prev Amount</th>
-                      <th>Product Amount</th>
-                      <th>Total Amount</th>
-                      <th>Quantity</th>
-                      <th>Type</th>
-                      <th>Weight</th>
-                      <th>Color</th>
-                      <th>Issue Date</th>
+                      <th>S.No</th>
+                      <th>Care Of</th>
+                      <th>Product</th>
+                      <th>Complete Address</th>
+                      <th>Doctor Name</th>
+                      <th>Contact</th>
+                      <th>SR Number</th>
+                      <th>Hospital Name</th>
                       <th>Delivery Date</th>
-                      <th>Product ID</th>
-                      <th>Bill No</th>
-                      <th>Status</th>
+                      <th>Invoice Number</th>
+                      <th>QTX Sale</th>
+                      <th>Amount</th>
+                      <th>Dosage Amount</th>
+                      <th>Perform By</th>
+                      <th>Payment Reciving Date</th>
+                      <th>FOC</th>
                       <th style={{ textAlign: "center" }}>Action</th>
+                      <th>Status</th>
                     </tr>
                   </thead>
 
                   <tbody>
                     {transactions.length === 0 ? (
                       <tr>
-                        <td colSpan="14" className="text-center">
+                        <td colSpan="18" className="text-center">
                           No records available
                         </td>
                       </tr>
                     ) : (
                       transactions.map((item, index) => (
                         <tr key={index}>
-                          <td>
-                            <div className="d-flex flex-column">
-                              <span className="fw-bold">{item.clientName}</span>
-                              <small className="text-muted">
-                                ID: {item.clientId}
-                              </small>
-                            </div>
-                          </td>
-                          <td>${item.prevAmount}</td>
-                          <td>${item.amount}</td>
-                          <td>${item.totalAmount}</td>
-                          <td>{item.quantity}</td>
-                          <td>{item.type}</td>
-                          <td>{item.weight}</td>
-                          <td>{item.color}</td>
-                          <td>{item.issueDate}</td>
-                          <td>{item.deliveryDate}</td>
-                          <td>{item.productId}</td>
-                          <td>{item.billNo}</td>
-                          <td>{item.status}</td>
+                          <td>{item.S_No}</td>
+                          <td>{item.Care_Of}</td>
+                          <td>{item.product}</td>
+                          <td>{item.CompleteAddress}</td>
+                          <td>{item.DoctorName}</td>
+                          <td>{item.Contact}</td>
+                          <td>{item.SR_Name}</td>
+                          <td>{item.HospitalName}</td>
+                          <td>{item.Delivery_Date}</td>
+                          <td>{item.Invoice_Number}</td>
+                          <td>{item.QtxSale}</td>
+                          <td>{item.Amount}</td>
+                          <td>{item.Dosage_Month}</td>
+                          <td>{item.Perform_By}</td>
+                          <td>{item.Payment_Reciving_Date}</td>
+                          <td>{item.Foc}</td>
                           <td style={{ textAlign: "center" }}>
                             <div className="d-flex justify-content-center gap-2">
                               <Button
@@ -242,6 +247,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                               </Button>
                             </div>
                           </td>
+                          <td>{item.Status}</td>
                         </tr>
                       ))
                     )}
@@ -266,11 +272,11 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Client ID</Form.Label>
+                  <Form.Label>S_No</Form.Label>
                   <Form.Control
                     type="text"
-                    name="clientId"
-                    value={formData.clientId}
+                    name="S_No"
+                    value={formData.S_No}
                     onChange={handleInputChange}
                     required
                   />
@@ -278,27 +284,25 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Client Name</Form.Label>
+                  <Form.Label>Care_Of</Form.Label>
                   <Form.Control
                     type="text"
-                    name="clientName"
-                    value={formData.clientName}
+                    name="Care_Of"
+                    value={formData.Care_Of}
                     onChange={handleInputChange}
                     required
                   />
                 </Form.Group>
               </Col>
             </Row>
-
-            {/* Previous Amount & Bill No */}
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Previous Amount</Form.Label>
+                  <Form.Label>Product</Form.Label>
                   <Form.Control
-                    type="number"
-                    name="prevAmount"
-                    value={formData.prevAmount}
+                    type="text"
+                    name="product"
+                    value={formData.product}
                     onChange={handleInputChange}
                     required
                   />
@@ -306,11 +310,11 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Bill No</Form.Label>
+                  <Form.Label>Complete Address</Form.Label>
                   <Form.Control
                     type="text"
-                    name="billNo"
-                    value={formData.billNo}
+                    name="CompleteAddress"
+                    value={formData.CompleteAddress}
                     onChange={handleInputChange}
                     required
                   />
@@ -322,11 +326,114 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Issue Date</Form.Label>
+                  <Form.Label>Doctor Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="DoctorName"
+                    value={formData.DoctorName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Contact</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Contact"
+                    value={formData.Contact}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>SR_Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="SR_Name"
+                    value={formData.SR_Name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+              <Form.Group>
+                  <Form.Label>Hospital Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="HospitalName"
+                    value={formData.HospitalName}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>Delivery_Date</Form.Label>
                   <Form.Control
                     type="date"
-                    name="issueDate"
-                    value={formData.issueDate}
+                    name="Delivery_Date"
+                    value={formData.Delivery_Date}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row className="mb-3">
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>Invoice_Number</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Invoice_Number"
+                    value={formData.Invoice_Number}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>Qtx Sale</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="QtxSale"
+                    value={formData.QtxSale}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>Amount</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Amount"
+                    value={formData.Amount}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            <Row className="mb-3">
+              <Col md={6}>
+                <Form.Group>
+                  <Form.Label>Dosage_Month</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Dosage_Month"
+                    value={formData.Dosage_Month}
                     onChange={handleInputChange}
                     required
                   />
@@ -334,117 +441,48 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Delivery Date</Form.Label>
+                  <Form.Label>Perform_By</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Perform_By"
+                    value={formData.Perform_By}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+            <Row>
+              <Col md={6}>
+              <Form.Group>
+                  <Form.Label>Payment_Reciving_Date</Form.Label>
                   <Form.Control
                     type="date"
-                    name="deliveryDate"
-                    value={formData.deliveryDate}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            {/* Product Amount, Total Amount & Quantity */}
-            <Row className="mb-3">
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label>Product Amount</Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="amount"
-                    value={formData.amount}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label>Total Amount</Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="totalAmount"
-                    value={formData.totalAmount}
-                    readOnly
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label>Quantity</Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="quantity"
-                    value={formData.quantity}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            {/* Type, Weight & Color */}
-            <Row className="mb-3">
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label>Type</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="type"
-                    value={formData.type}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label>Weight</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="weight"
-                    value={formData.weight}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label>Color</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="color"
-                    value={formData.color}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-            </Row>
-
-            {/* Product ID & Status */}
-            <Row className="mb-3">
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Product ID</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="productId"
-                    value={formData.productId}
+                    name="Payment_Reciving_Date"
+                    value={formData.Payment_Reciving_Date}
                     onChange={handleInputChange}
                     required
                   />
                 </Form.Group>
               </Col>
               <Col md={6}>
+              <Form.Group>
+                  <Form.Label>Foc</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Foc"
+                    value={formData.Foc}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
                 <Form.Group>
                   <Form.Label>Status</Form.Label>
                   <Form.Select
-                    name="status"
-                    value={formData.status}
+                    name="Status"
+                    value={formData.Status}
                     onChange={handleInputChange}
                     required
                   >
@@ -454,8 +492,6 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                     {isEditMode && <option value="cancelled">Cancelled</option>}
                   </Form.Select>
                 </Form.Group>
-              </Col>
-            </Row>
           </Form>
         </Modal.Body>
         <Modal.Footer>
@@ -465,7 +501,6 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
           <Button
             variant="primary"
             onClick={handleAddRecord}
-            disabled={!isFormValid}
           >
             {isEditMode ? "Update Record" : "Add Record"}
           </Button>

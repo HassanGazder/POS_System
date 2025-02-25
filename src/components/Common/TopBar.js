@@ -5,13 +5,13 @@ import logodark from "../../assets/images/logo-dark.png";
 import logolight from "../../assets/images/logo-light.png";
 
 // import component
-import ProfileMenu from "./TopbarDropdown/ProfileMenu";
+// import ProfileMenu from "./TopbarDropdown/ProfileMenu";
 
-import NotificationDropdown from "./TopbarDropdown/NotificationDropdown";
+// import NotificationDropdown from "./TopbarDropdown/NotificationDropdown";
 
-import LanguageDropdown from "./TopbarDropdown/LanguageDropdown";
+// import LanguageDropdown from "./TopbarDropdown/LanguageDropdown";
 
-import AppsDropdown from "./TopbarDropdown/AppsDropdown";
+// import AppsDropdown from "./TopbarDropdown/AppsDropdown";
 
 const TopBar = () => {
   return (
@@ -20,7 +20,7 @@ const TopBar = () => {
         <div className="navbar-header">
           <div className="d-flex">
             <div className="navbar-brand-box text-center">
-              <a href="#" className="logo logo-dark">
+              <a href="jd" className="logo logo-dark">
                 <span className="logo-sm">
                   <img src={logosm} alt="logo-sm-dark" height="22" />
                 </span>
@@ -29,7 +29,7 @@ const TopBar = () => {
                 </span>
               </a>
 
-              <a href="#" className="logo logo-light">
+              <a href="s" className="logo logo-light">
                 <span className="logo-sm">
                   <img src={logosm} alt="logo-sm-light" height="22" />
                 </span>

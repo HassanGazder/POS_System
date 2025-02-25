@@ -1,25 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
 import SimpleBar from "simplebar-react";
 import { Card, CardBody, CardTitle, Col } from "reactstrap";
 
-const Notifications = ({ transactions = [] }) => {
-  // Default to empty array
-  const [borrowNotifications, setBorrowNotifications] = useState([]);
-
-  useEffect(() => {
-    // Filter transactions where prevAmount is entered
-    const filteredTransactions = transactions
-      .filter((transaction) => parseFloat(transaction.prevAmount) > 0) // Only include transactions with prevAmount
-      .map((transaction) => ({
-        id: transaction.clientId,
-        name: transaction.clientName,
-        prevAmount: transaction.prevAmount, // Fetch prevAmount
-        issueDate: transaction.issueDate,
-      }));
-
-    setBorrowNotifications(filteredTransactions);
-  }, [transactions]);
+const Notifications = () => {
+ 
 
   return (
     <React.Fragment>
@@ -29,11 +14,7 @@ const Notifications = ({ transactions = [] }) => {
             <CardTitle>Notifications (Due Payments)</CardTitle>
             <div className="pe-3">
               <SimpleBar style={{ maxHeight: "287px" }}>
-                {borrowNotifications.length === 0 ? (
-                  <p className="text-center">No Due transactions</p>
-                ) : (
-                  borrowNotifications.map((item, key) => (
-                    <Link key={key} to="#" className="text-body d-block">
+                    <Link to="#" className="text-body d-block">
                       <div className="d-flex py-3">
                         <div className="flex-shrink-0 me-3 align-self-center">
                           <div className="avatar-xs">
@@ -43,20 +24,16 @@ const Notifications = ({ transactions = [] }) => {
                           </div>
                         </div>
                         <div className="flex-grow-1 overflow-hidden">
-                          <h5 className="font-size-14 mb-1">{item.name}</h5>
-                          <p className="text-truncate mb-0">ID: {item.id}</p>
+                          <h5 className="font-size-14 mb-1">gfg</h5>
+                          <p className="text-truncate mb-0">ID</p>
                           <p className="text-truncate mb-0">
-                            Prev Amount: ${item.prevAmount}
                           </p>{" "}
                           {/* ✅ Show Prev Amount */}
                         </div>
                         <div className="flex-shrink-0 font-size-13 text-end">
-                          {item.issueDate}
                         </div>
                       </div>
                     </Link>
-                  ))
-                )}
               </SimpleBar>
             </div>
           </CardBody>
