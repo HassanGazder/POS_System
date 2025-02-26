@@ -3,11 +3,7 @@ import { Row, Col } from "reactstrap";
 import { Modal, Button, Form, Table } from "react-bootstrap";
 // import OrderStatus from "./OrderStatus";
 const LatestTransaction = ({ setStats, setTransactions }) => {
-  // const [transactions, setTransactions] = useState([]);
   const [transactions, setLocalTransactions] = useState([]);
-  // const getCurrentDate = () => {
-  //   return new Date().toISOString().split("T")[0]; // Formats to YYYY-MM-DD
-  // };
   const [formData, setFormData] = useState({
     S_No: "1",
     Care_Of: "hassan",
@@ -25,7 +21,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
     Perform_By: "",
     Payment_Reciving_Date: new Date().toISOString().split("T")[0],
     Foc: "",
-    Status:""
+    Status: "",
   });
 
   const [showModal, setShowModal] = useState(false);
@@ -33,9 +29,9 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
   const [editIndex, setEditIndex] = useState(null);
 
   // Handle input changes
-  const handleInputChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  // const handleInputChange = (e) => {
+  //   setFormData({ ...formData, [e.target.name]: e.target.value });
+  // };
 
   const handleAddRecord = () => {
     let updatedTransactions = [...transactions];
@@ -71,7 +67,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
       Perform_By: "",
       Payment_Reciving_Date: "",
       Foc: "",
-      Status:""
+      Status: "",
     });
 
     setShowModal(false);
@@ -139,6 +135,44 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
   //     ).toFixed(2),
   //   }));
   // }, [formData.prevAmount, formData.amount]);
+
+  const medicineList = [
+    "Panadol",
+    "Brufen",
+    "Disprin",
+    "Augmentin",
+    "Ciprofloxacin",
+    "Flagyl",
+    "Ponstan",
+    "Paracetamol",
+    "Dolofen",
+    "Mobic",
+    "Neurobion",
+  ];
+ 
+  const [suggestions, setSuggestions] = useState([]);
+
+    // ✅ Handle input changes, including autocomplete for "product"
+    const handleInputChange = (e) => {
+      const { name, value } = e.target;
+      setFormData((prev) => ({ ...prev, [name]: value }));
+  
+      if (name === "product") {
+        if (value.length > 0) {
+          const filtered = medicineList.filter((medicine) =>
+            medicine.toLowerCase().includes(value.toLowerCase())
+          );
+          setSuggestions(filtered);
+        } else {
+          setSuggestions([]);
+        }
+      }
+    };
+
+  const handleSelectSuggestion = (medicine) => {
+    setFormData((prev) => ({ ...prev, product: medicine }));
+    setSuggestions([]); // Hide suggestions after selection
+  };
 
   return (
     <React.Fragment>
@@ -296,7 +330,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
             </Row>
             <Row className="mb-3">
-              <Col md={6}>
+              <Col md={6} style={{ position: "relative" }}>
                 <Form.Group>
                   <Form.Label>Product</Form.Label>
                   <Form.Control
@@ -306,6 +340,43 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                     onChange={handleInputChange}
                     required
                   />
+                  {/* Suggestions Dropdown */}
+                  {suggestions.length > 0 && (
+                    <div
+                      style={{
+                        position: "absolute",
+                        backgroundColor: "#fff",
+                        border: "1px solid #ccc",
+                        width: "100%",
+                        zIndex: 1000,
+                        maxHeight: "150px",
+                        overflowY: "auto",
+                        borderRadius: "5px",
+                        boxShadow: "0px 4px 6px rgba(0,0,0,0.1)",
+                      }}
+                    >
+                      {suggestions.map((medicine, index) => (
+                        <div
+                          key={index}
+                          onClick={() => handleSelectSuggestion(medicine)}
+                          style={{
+                            padding: "8px",
+                            cursor: "pointer",
+                            borderBottom: "1px solid #eee",
+                            transition: "background 0.2s",
+                          }}
+                          onMouseOver={(e) =>
+                            (e.target.style.background = "#f1f1f1")
+                          }
+                          onMouseOut={(e) =>
+                            (e.target.style.background = "#fff")
+                          }
+                        >
+                          {medicine}
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 </Form.Group>
               </Col>
               <Col md={6}>
@@ -363,7 +434,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                 </Form.Group>
               </Col>
               <Col md={4}>
-              <Form.Group>
+                <Form.Group>
                   <Form.Label>Hospital Name</Form.Label>
                   <Form.Control
                     type="text"
@@ -454,7 +525,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
             </Row>
             <Row>
               <Col md={6}>
-              <Form.Group>
+                <Form.Group>
                   <Form.Label>Payment_Reciving_Date</Form.Label>
                   <Form.Control
                     type="date"
@@ -466,7 +537,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                 </Form.Group>
               </Col>
               <Col md={6}>
-              <Form.Group>
+                <Form.Group>
                   <Form.Label>Foc</Form.Label>
                   <Form.Control
                     type="text"
@@ -478,30 +549,27 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                 </Form.Group>
               </Col>
             </Row>
-                <Form.Group>
-                  <Form.Label>Status</Form.Label>
-                  <Form.Select
-                    name="Status"
-                    value={formData.Status}
-                    onChange={handleInputChange}
-                    required
-                  >
-                    <option value="">Select Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="completed">Delivered</option>
-                    {isEditMode && <option value="cancelled">Cancelled</option>}
-                  </Form.Select>
-                </Form.Group>
+            <Form.Group>
+              <Form.Label>Status</Form.Label>
+              <Form.Select
+                name="Status"
+                value={formData.Status}
+                onChange={handleInputChange}
+                required
+              >
+                <option value="">Select Status</option>
+                <option value="pending">Pending</option>
+                <option value="completed">Delivered</option>
+                {isEditMode && <option value="cancelled">Cancelled</option>}
+              </Form.Select>
+            </Form.Group>
           </Form>
         </Modal.Body>
         <Modal.Footer>
           <Button variant="secondary" onClick={() => setShowModal(false)}>
             Close
           </Button>
-          <Button
-            variant="primary"
-            onClick={handleAddRecord}
-          >
+          <Button variant="primary" onClick={handleAddRecord}>
             {isEditMode ? "Update Record" : "Add Record"}
           </Button>
         </Modal.Footer>
