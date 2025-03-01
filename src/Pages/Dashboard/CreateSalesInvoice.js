@@ -1,44 +1,85 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  Col,
-  Row,
-  Button,
-  Table,
-  Modal,
-  Input,
-  FormGroup,
-  Label,
-} from "reactstrap";
+import React, { useState, useRef } from "react";
+import { Col, Row, Modal, Input, FormGroup, Label } from "reactstrap";
+import { Button, Table } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPrint, faFilePdf, faTimes } from "@fortawesome/free-solid-svg-icons";
 import html2pdf from "html2pdf.js";
 
-const CreateSalesInvoice = ({ transactions }) => {
-  const [serialNumber, setSerialNumber] = useState("");
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
-  const [error, setError] = useState("");
-  const [modal, setModal] = useState(false);
-  const printRef = useRef();
+const numberToWords = (num) => {
+  const a = [
+    "",
+    "One",
+    "Two",
+    "Three",
+    "Four",
+    "Five",
+    "Six",
+    "Seven",
+    "Eight",
+    "Nine",
+    "Ten",
+    "Eleven",
+    "Twelve",
+    "Thirteen",
+    "Fourteen",
+    "Fifteen",
+    "Sixteen",
+    "Seventeen",
+    "Eighteen",
+    "Nineteen",
+  ];
+  const b = [
+    "",
+    "",
+    "Twenty",
+    "Thirty",
+    "Forty",
+    "Fifty",
+    "Sixty",
+    "Seventy",
+    "Eighty",
+    "Ninety",
+  ];
 
-  useEffect(() => {
-    if (!modal) {
-      setSelectedTransaction(null);
-      setError("");
-      setSerialNumber("");
-    }
-  }, [modal]);
-
-  const toggleModal = () => {
-    setModal(!modal);
+  const convert = (n) => {
+    if (n < 20) return a[n];
+    if (n < 100) return b[Math.floor(n / 10)] + (n % 10 ? " " + a[n % 10] : "");
+    if (n < 1000)
+      return (
+        a[Math.floor(n / 100)] +
+        " Hundred" +
+        (n % 100 ? " and " + convert(n % 100) : "")
+      );
+    if (n < 1000000)
+      return (
+        convert(Math.floor(n / 1000)) +
+        " Thousand" +
+        (n % 1000 ? " " + convert(n % 1000) : "")
+      );
+    return "Number too large";
   };
 
+  return num ? convert(num) + " Only" : "";
+};
+
+const CreateSalesInvoice = ({ transactions, onClose }) => {
+  const [serialNumbers, setSerialNumbers] = useState("");
+  const [selectedTransactions, setSelectedTransactions] = useState([]);
+  const [error, setError] = useState("");
+  const printRef = useRef();
+
   const handleSearchTransaction = () => {
-    const transaction = transactions.find(
-      (t) => String(t.S_No) === serialNumber
+    const serialArray = serialNumbers.split(",").map((s) => s.trim());
+    const foundTransactions = transactions.filter((t) =>
+      serialArray.includes(String(t.S_No))
     );
-    if (transaction) {
-      setSelectedTransaction(transaction);
+
+    if (foundTransactions.length > 0) {
+      setSelectedTransactions(foundTransactions);
       setError("");
     } else {
-      setError("Transaction not found for the entered Serial Number!");
+      setError("No transactions found for the entered Serial Numbers!");
+      setSelectedTransactions([]);
     }
   };
 
@@ -57,30 +98,60 @@ const CreateSalesInvoice = ({ transactions }) => {
 
   return (
     <React.Fragment>
-      <Button color="primary" size="sm" onClick={toggleModal}>
-      <i className="mdi mdi-plus-circle me-2"></i> Create Sales Invoice
-      </Button>
-
-      <Modal isOpen={modal} toggle={toggleModal} size="lg" centered>
-          <Button
-                  className="btn-close position-absolute top-0 end-0 m-3"
-                  onClick={toggleModal}
-                  aria-label="Close"
-                ></Button>
+      <Modal isOpen={true} toggle={onClose} size="lg" centered>
         <div className="p-4 w-100" style={{ maxWidth: "800px", margin: "0 auto" }}>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+                      {/* Main Close Button (Top-Left) */}
+                      {!selectedTransactions.length && (
+                        <FontAwesomeIcon
+                          icon={faTimes}
+                          size="2x"
+                          onClick={onClose}
+                          style={{ cursor: "pointer", color: "#6c757d" }} // Grey color
+                        />
+                      )}
           
+                      <h3 className="modal-title mb-0">Create Quotation</h3>
+          
+                      {/* Print & PDF Buttons (Top-Right) */}
+                      {selectedTransactions.length > 0 ? (
+                        <div className="d-flex gap-3">
+                          <FontAwesomeIcon
+                            icon={faPrint}
+                            size="2x"
+                            onClick={handlePrint}
+                            style={{ cursor: "pointer", color: "#6c757d" }} // Grey color
+                          />
+                          <FontAwesomeIcon
+                            icon={faFilePdf}
+                            size="2x"
+                            onClick={handleDownloadPDF}
+                            style={{ cursor: "pointer", color: "#6c757d" }} // Grey color
+                          />
+                          {/* Close Button (Only appears when quotation is shown - Top Right) */}
+                          <FontAwesomeIcon
+                            icon={faTimes}
+                            size="2x"
+                            onClick={onClose}
+                            style={{ cursor: "pointer", color: "#6c757d" }}
+                          />
+                        </div>
+                      ) : (
+                        <div></div> // Placeholder to maintain alignment
+                      )}
+                    </div>
           {/* Serial Number Input */}
           <FormGroup>
-            <Label for="serialNumber">Enter Serial Number</Label>
+            <Label for="serialNumbers">Enter Serial Numbers (comma separated)</Label>
             <Input
               type="text"
-              id="serialNumber"
-              value={serialNumber}
+              id="serialNumbers"
+              value={serialNumbers}
               onChange={(e) => {
-                setSerialNumber(e.target.value);
+                setSerialNumbers(e.target.value);
                 setError("");
               }}
-              placeholder="Enter S.No"
+              placeholder="Enter S.No, S.No, S.No"
             />
           </FormGroup>
           <Button color="primary" onClick={handleSearchTransaction} className="mb-3 w-100">
@@ -90,18 +161,17 @@ const CreateSalesInvoice = ({ transactions }) => {
           {/* Display error message */}
           {error && <p className="text-danger text-center">{error}</p>}
 
-          {selectedTransaction && (
+          {selectedTransactions.length > 0 && (
             <div ref={printRef}>
-              
               {/* Header Section */}
               <Row className="border-bottom pb-3 mb-3">
                 <Col sm={6}>
                   <h5 className="fw-bold">Umar Pharma (Pvt) Limited</h5>
-                  <p>{selectedTransaction.CompleteAddress}</p>
+                  <p>{selectedTransactions[0].CompleteAddress}</p>
                 </Col>
                 <Col sm={6} className="text-md-end text-center">
                   <h2>SALES INVOICE</h2>
-                  <p>ACC No: {selectedTransaction.Invoice_Number}</p>
+                  <p>ACC No: {selectedTransactions[0].Invoice_Number}</p>
                 </Col>
               </Row>
 
@@ -109,16 +179,16 @@ const CreateSalesInvoice = ({ transactions }) => {
               <div className="border p-3 mb-3">
                 <Row>
                   <Col sm={6}>
-                    <p><strong>Customer Name:</strong> {selectedTransaction.Care_Of}</p>
-                    <p><strong>Tax ID:</strong> {selectedTransaction.S_No}</p>
-                    <p><strong>Address:</strong> {selectedTransaction.CompleteAddress}</p>
+                    <p><strong>Customer Name:</strong> {selectedTransactions[0].Care_Of}</p>
+                    <p><strong>Tax ID:</strong> {selectedTransactions[0].S_No}</p>
+                    <p><strong>Address:</strong> {selectedTransactions[0].CompleteAddress}</p>
                   </Col>
                   <Col sm={6} className="text-md-end text-center">
-                    <p><strong>Sales Person:</strong> {selectedTransaction.SR_Name}</p>
-                    <p><strong>Date:</strong> {selectedTransaction.Delivery_Date}</p>
-                    <p><strong>Payment Due Date:</strong> {selectedTransaction.Delivery_Date}</p>
-                    <p><strong>Customer PO:</strong> {selectedTransaction.Care_Of}</p>
-                    <p><strong>Customer PO Date:</strong> {selectedTransaction.Delivery_Date}</p>
+                    <p><strong>Sales Person:</strong> {selectedTransactions[0].SR_Name}</p>
+                    <p><strong>Date:</strong> {selectedTransactions[0].Delivery_Date}</p>
+                    <p><strong>Payment Due Date:</strong> {selectedTransactions[0].Delivery_Date}</p>
+                    <p><strong>Customer PO:</strong> {selectedTransactions[0].Care_Of}</p>
+                    <p><strong>Customer PO Date:</strong> {selectedTransactions[0].Delivery_Date}</p>
                   </Col>
                 </Row>
               </div>
@@ -137,14 +207,15 @@ const CreateSalesInvoice = ({ transactions }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>{selectedTransaction.S_No}</td>
-                      <td>{selectedTransaction.product}</td>
-                      <td>{selectedTransaction.DoctorName}</td>
-                      <td>{selectedTransaction.SR_Name}</td>
-                      <td>{selectedTransaction.Amount}</td>
-                      <td>{selectedTransaction.Delivery_Date}</td>
-                    </tr>
+                    {selectedTransactions.map((transaction, index) => (
+                      <tr key={index}>
+                        <td>{transaction.S_No}</td>
+                        <td>{transaction.product}</td>
+                        <td>{transaction.QtxSale}</td>
+                        <td>{transaction.Amount / transaction.QtxSale}</td> {/* Assuming Amount is total for the quantity */}
+                        <td>{transaction.Delivery_Date}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </Table>
               </div>
@@ -152,15 +223,15 @@ const CreateSalesInvoice = ({ transactions }) => {
               {/* Totals Section */}
               <Row className="mt-3">
                 <Col sm={6}>
-                  <p><strong>Total Quantity:</strong> {selectedTransaction.QtxSale}</p>
-                  <p><strong>Tax on Sales:</strong> {selectedTransaction.QtxSale}</p>
-                  <p><strong>Additional Discount:</strong> {selectedTransaction.QtxSale}</p>
+                  <p><strong>Total Quantity:</strong> {selectedTransactions.reduce((total, transaction) => total + parseInt(transaction.QtxSale, 10), 0)}</p>
+                  <p><strong>Tax on Sales:</strong> -</p>
+                  <p><strong>Additional Discount:</strong> -</p>
                 </Col>
                 <Col sm={6} className="text-md-end text-center">
-                  <p><strong>Total:</strong> {selectedTransaction.Amount}</p>
-                  <p><strong>Grand Total:</strong> {selectedTransaction.Amount}</p>
-                  <p><strong>Rounded Total:</strong> {selectedTransaction.Amount}</p>
-                  <p><strong>Amount in Words:</strong> {selectedTransaction.Amount}</p>
+                  <p><strong>Total:</strong> {selectedTransactions.reduce((total, transaction) => total + parseInt(transaction.Amount, 10), 0)}</p>
+                  <p><strong>Grand Total:</strong> {selectedTransactions.reduce((total, transaction) => total + parseInt(transaction.Amount, 10), 0)}</p>
+                  <p><strong>Rounded Total:</strong> {selectedTransactions.reduce((total, transaction) => total + parseInt(transaction.Amount, 10), 0)}</p>
+                  <p><strong>Amount in Words:</strong> {numberToWords(selectedTransactions.reduce((total, transaction) => total + parseInt(transaction.Amount, 10), 0))}</p>
                 </Col>
               </Row>
 
@@ -186,21 +257,12 @@ const CreateSalesInvoice = ({ transactions }) => {
                   </p>
                 </Col>
               </Row>
-
             </div>
           )}
         </div>
 
         {/* Modal Footer (Responsive Buttons) */}
-        <div className="modal-footer d-flex flex-wrap justify-content-center">
-          <Button color="secondary" onClick={toggleModal} className="m-1 w-100 w-md-auto">Close</Button>
-          {selectedTransaction && (
-            <>
-              <Button color="danger" onClick={handleDownloadPDF} className="m-1 w-100 w-md-auto">Download PDF</Button>
-              <Button color="primary" onClick={handlePrint} className="m-1 w-100 w-md-auto">Print Invoice</Button>
-            </>
-          )}
-        </div>
+     
       </Modal>
     </React.Fragment>
   );

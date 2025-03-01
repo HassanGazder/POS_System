@@ -1,14 +1,8 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-  Col,
-  Row,
-  Button,
-  Table,
-  Modal,
-  Input,
-  FormGroup,
-  Label,
-} from "reactstrap";
+import React, { useState, useRef } from "react";
+import { Col, Row, Modal, Input, FormGroup, Label } from "reactstrap";
+import { Button, Table } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPrint, faFilePdf, faTimes } from "@fortawesome/free-solid-svg-icons";
 import html2pdf from "html2pdf.js";
 
 const numberToWords = (num) => {
@@ -68,32 +62,24 @@ const numberToWords = (num) => {
   return num ? convert(num) + " Only" : "";
 };
 
-const CreateInvoice = ({ transactions }) => {
-  const [serialNumber, setSerialNumber] = useState("");
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
-  const [modal, setModal] = useState(false);
+const CreateInvoice = ({ transactions, onClose }) => {
+  const [serialNumbers, setSerialNumbers] = useState("");
+  const [selectedTransactions, setSelectedTransactions] = useState([]);
   const [error, setError] = useState("");
   const printRef = useRef();
 
-  useEffect(() => {
-    if (!modal) {
-      setSelectedTransaction(null);
-      setError("");
-      setSerialNumber("");
-    }
-  }, [modal]);
-
-  const toggleModal = () => setModal(!modal);
-
   const handleSearchTransaction = () => {
-    const transaction = transactions.find(
-      (t) => String(t.S_No) === serialNumber
+    const serialArray = serialNumbers.split(",").map((s) => s.trim());
+    const foundTransactions = transactions.filter((t) =>
+      serialArray.includes(String(t.S_No))
     );
-    if (transaction) {
-      setSelectedTransaction(transaction);
+
+    if (foundTransactions.length > 0) {
+      setSelectedTransactions(foundTransactions);
       setError("");
     } else {
-      setError("Transaction not found for the entered Serial Number!");
+      setError("No transactions found for the entered Serial Numbers!");
+      setSelectedTransactions([]);
     }
   };
 
@@ -112,29 +98,62 @@ const CreateInvoice = ({ transactions }) => {
 
   return (
     <React.Fragment>
-      <Button color="primary" size="sm" onClick={toggleModal}>
-        <i className="mdi mdi-plus-circle me-2"></i> Create Invoice
-      </Button>
-
-      <Modal isOpen={modal} toggle={toggleModal} size="lg" centered>
-        <Button
-          className="btn-close position-absolute top-0 end-0 m-3"
-          onClick={toggleModal}
-          aria-label="Close"
-        ></Button>
+      <Modal isOpen={true} toggle={onClose} size="lg" centered>
         <div
           className="p-4 w-100"
           style={{ maxWidth: "800px", margin: "0 auto" }}
         >
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            {/* Main Close Button (Top-Left) */}
+            {!selectedTransactions.length && (
+              <FontAwesomeIcon
+                icon={faTimes}
+                size="2x"
+                onClick={onClose}
+                style={{ cursor: "pointer", color: "#6c757d" }} // Grey color
+              />
+            )}
+
+            <h3 className="modal-title mb-0">Create Quotation</h3>
+
+            {/* Print & PDF Buttons (Top-Right) */}
+            {selectedTransactions.length > 0 ? (
+              <div className="d-flex gap-3">
+                <FontAwesomeIcon
+                  icon={faPrint}
+                  size="2x"
+                  onClick={handlePrint}
+                  style={{ cursor: "pointer", color: "#6c757d" }} // Grey color
+                />
+                <FontAwesomeIcon
+                  icon={faFilePdf}
+                  size="2x"
+                  onClick={handleDownloadPDF}
+                  style={{ cursor: "pointer", color: "#6c757d" }} // Grey color
+                />
+                {/* Close Button (Only appears when quotation is shown - Top Right) */}
+                <FontAwesomeIcon
+                  icon={faTimes}
+                  size="2x"
+                  onClick={onClose}
+                  style={{ cursor: "pointer", color: "#6c757d" }}
+                />
+              </div>
+            ) : (
+              <div></div> // Placeholder to maintain alignment
+            )}
+          </div>
           {/* Serial Number Input */}
           <FormGroup>
-            <Label for="serialNumber">Enter Serial Number</Label>
+            <Label for="serialNumbers">
+              Enter Serial Numbers (comma separated)
+            </Label>
             <Input
               type="text"
-              id="serialNumber"
-              value={serialNumber}
-              onChange={(e) => setSerialNumber(e.target.value)}
-              placeholder="Enter S.No"
+              id="serialNumbers"
+              value={serialNumbers}
+              onChange={(e) => setSerialNumbers(e.target.value)}
+              placeholder="Enter S.No, S.No, S.No"
             />
           </FormGroup>
           <Button
@@ -146,7 +165,7 @@ const CreateInvoice = ({ transactions }) => {
           </Button>
           {error && <p className="text-danger text-center">{error}</p>}
 
-          {selectedTransaction && (
+          {selectedTransactions.length > 0 && (
             <div ref={printRef}>
               {/* Header Section */}
               <div className="text-center mb-4 border p-3">
@@ -166,35 +185,36 @@ const CreateInvoice = ({ transactions }) => {
               <p className="text-center fw-bold border p-2">Cash Memo</p>
 
               {/* Customer Profile Section */}
-              <div className="p-3 mb-3 border">
-                <Row>
-                  <Col md={6}>
-                    <h5 className="text-center">Customer Profile</h5>
-                    <p>
-                      <strong>Care Of:</strong> {selectedTransaction.Care_Of}
-                    </p>
-                    <p>
-                      <strong>Address:</strong>{" "}
-                      {selectedTransaction.CompleteAddress}
-                    </p>
-                    <p>
-                      <strong>Contact No:</strong> {selectedTransaction.Contact}
-                    </p>
-                  </Col>
-                  <Col md={6} className="text-md-end text-center">
-                    <p>
-                      <strong>Date:</strong> {selectedTransaction.Delivery_Date}
-                    </p>
-                    <p>
-                      <strong>Invoice No:</strong>{" "}
-                      {selectedTransaction.Invoice_Number}
-                    </p>
-                    <p>
-                      <strong>Status:</strong> {selectedTransaction.Status}
-                    </p>
-                  </Col>
-                </Row>
-              </div>
+              {selectedTransactions.map((transaction, index) => (
+                <div key={index} className="p-3 mb-3 border">
+                  <Row>
+                    <Col md={6}>
+                      <h5 className="text-center">Customer Profile</h5>
+                      <p>
+                        <strong>Care Of:</strong> {transaction.Care_Of}
+                      </p>
+                      <p>
+                        <strong>Address:</strong> {transaction.CompleteAddress}
+                      </p>
+                      <p>
+                        <strong>Contact No:</strong> {transaction.Contact}
+                      </p>
+                    </Col>
+                    <Col md={6} className="text-md-end text-center">
+                      <p>
+                        <strong>Date:</strong> {transaction.Delivery_Date}
+                      </p>
+                      <p>
+                        <strong>Invoice No:</strong>{" "}
+                        {transaction.Invoice_Number}
+                      </p>
+                      <p>
+                        <strong>Status:</strong> {transaction.Status}
+                      </p>
+                    </Col>
+                  </Row>
+                </div>
+              ))}
 
               {/* Table Section (Responsive Table) */}
               <div className="table-responsive">
@@ -211,15 +231,17 @@ const CreateInvoice = ({ transactions }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>{selectedTransaction.S_No}</td>
-                      <td>{selectedTransaction.product}</td>
-                      <td>{selectedTransaction.DoctorName}</td>
-                      <td>{selectedTransaction.SR_Name}</td>
-                      <td>{selectedTransaction.HospitalName}</td>
-                      <td>{selectedTransaction.Delivery_Date}</td>
-                      <td>{selectedTransaction.Amount}</td>
-                    </tr>
+                    {selectedTransactions.map((transaction, index) => (
+                      <tr key={index}>
+                        <td>{transaction.S_No}</td>
+                        <td>{transaction.product}</td>
+                        <td>{transaction.DoctorName}</td>
+                        <td>{transaction.SR_Name}</td>
+                        <td>{transaction.HospitalName}</td>
+                        <td>{transaction.Delivery_Date}</td>
+                        <td>{transaction.Amount}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </Table>
               </div>
@@ -229,18 +251,34 @@ const CreateInvoice = ({ transactions }) => {
                 <Col md={6}>
                   <p>
                     <strong>In Words:</strong>{" "}
-                    {numberToWords(parseInt(selectedTransaction.Amount, 10))}
+                    {numberToWords(
+                      selectedTransactions.reduce(
+                        (total, transaction) =>
+                          total + parseInt(transaction.Amount, 10),
+                        0
+                      )
+                    )}
                   </p>
                 </Col>
                 <Col md={6} className="text-md-end text-center">
                   <p>
-                    <strong>Total Amount:</strong> {selectedTransaction.Amount}
+                    <strong>Total Amount:</strong>{" "}
+                    {selectedTransactions.reduce(
+                      (total, transaction) =>
+                        total + parseInt(transaction.Amount, 10),
+                      0
+                    )}
                   </p>
                   <p>
                     <strong>Sales Tax:</strong> -
                   </p>
                   <p>
-                    <strong>Grand Total:</strong> {selectedTransaction.Amount}
+                    <strong>Grand Total:</strong>{" "}
+                    {selectedTransactions.reduce(
+                      (total, transaction) =>
+                        total + parseInt(transaction.Amount, 10),
+                      0
+                    )}
                   </p>
                 </Col>
               </Row>
@@ -260,33 +298,6 @@ const CreateInvoice = ({ transactions }) => {
         </div>
 
         {/* Modal Footer (Responsive Buttons) */}
-        <div className="modal-footer d-flex flex-wrap justify-content-center">
-          <Button
-            color="secondary"
-            onClick={toggleModal}
-            className="m-1 w-100 w-md-auto"
-          >
-            Close
-          </Button>
-          {selectedTransaction && (
-            <>
-              <Button
-                color="primary"
-                onClick={handlePrint}
-                className="m-1 w-100 w-md-auto"
-              >
-                Print Invoice
-              </Button>
-              <Button
-                color="danger"
-                onClick={handleDownloadPDF}
-                className="m-1 w-100 w-md-auto"
-              >
-                Download PDF
-              </Button>
-            </>
-          )}
-        </div>
       </Modal>
     </React.Fragment>
   );

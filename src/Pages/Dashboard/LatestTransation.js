@@ -6,6 +6,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
   const [transactions, setLocalTransactions] = useState([]);
   const [formData, setFormData] = useState({
     S_No: "1",
+    Patient_Name:"abc",
     Care_Of: "hassan",
     product: "10",
     CompleteAddress: "1",
@@ -28,10 +29,6 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
-  // Handle input changes
-  // const handleInputChange = (e) => {
-  //   setFormData({ ...formData, [e.target.name]: e.target.value });
-  // };
 
   const handleAddRecord = () => {
     let updatedTransactions = [...transactions];
@@ -52,6 +49,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
     // Reset form and close modal
     setFormData({
       S_No: "1",
+      Patient_Name:"abc",
       Care_Of: "hassan",
       product: "10",
       CompleteAddress: "1",
@@ -112,30 +110,6 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
   useEffect(() => {
     setStats(calculateOrderStats()); // ✅ No more warning, because useCallback ensures stability
   }, [transactions, setStats, calculateOrderStats]); // Update stats whenever transactions change
-
-  // const [isFormValid, setIsFormValid] = useState(false);
-
-  // Function to check if all fields are filled
-  // useEffect(() => {
-  //   const isValid = Object.entries(formData).every(([key, value]) => {
-  //     if (key === "prevAmount") return true; // ✅ Allow prevAmount to be empty
-  //     return value.trim() !== "";
-  //   });
-
-  //   setIsFormValid(isValid);
-  // }, [formData]);
-
-  // ✅ Automatically calculate Total Amount (prevAmount + amount)
-  // useEffect(() => {
-  //   setFormData((prev) => ({
-  //     ...prev,
-  //     totalAmount: (
-  //       (prev.prevAmount ? parseFloat(prev.prevAmount) : 0) + // If prevAmount is empty, use 0
-  //       (prev.amount ? parseFloat(prev.amount) : 0)
-  //     ).toFixed(2),
-  //   }));
-  // }, [formData.prevAmount, formData.amount]);
-
   const medicineList = [
     "Panadol",
     "Brufen",
@@ -149,25 +123,25 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
     "Mobic",
     "Neurobion",
   ];
- 
+
   const [suggestions, setSuggestions] = useState([]);
 
-    // ✅ Handle input changes, including autocomplete for "product"
-    const handleInputChange = (e) => {
-      const { name, value } = e.target;
-      setFormData((prev) => ({ ...prev, [name]: value }));
-  
-      if (name === "product") {
-        if (value.length > 0) {
-          const filtered = medicineList.filter((medicine) =>
-            medicine.toLowerCase().includes(value.toLowerCase())
-          );
-          setSuggestions(filtered);
-        } else {
-          setSuggestions([]);
-        }
+  // ✅ Handle input changes, including autocomplete for "product"
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+
+    if (name === "product") {
+      if (value.length > 0) {
+        const filtered = medicineList.filter((medicine) =>
+          medicine.toLowerCase().includes(value.toLowerCase())
+        );
+        setSuggestions(filtered);
+      } else {
+        setSuggestions([]);
       }
-    };
+    }
+  };
 
   const handleSelectSuggestion = (medicine) => {
     setFormData((prev) => ({ ...prev, product: medicine }));
@@ -216,21 +190,22 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                     }}
                   >
                     <tr>
-                      <th>S.No</th>
-                      <th>Care Of</th>
+                      <th>S_No</th>
+                      <th>Patient_Name</th>
+                      <th>Care_Of</th>
                       <th>Product</th>
-                      <th>Complete Address</th>
-                      <th>Doctor Name</th>
+                      <th>Complete_Address</th>
+                      <th>Doctor_Name</th>
                       <th>Contact</th>
-                      <th>SR Number</th>
-                      <th>Hospital Name</th>
-                      <th>Delivery Date</th>
-                      <th>Invoice Number</th>
-                      <th>QTX Sale</th>
+                      <th>Sales_Representative_Number</th>
+                      <th>Hospital_Name</th>
+                      <th>Delivery_Date</th>
+                      <th>Invoice_Number</th>
+                      <th>QTX_Sale</th>
                       <th>Amount</th>
-                      <th>Dosage Amount</th>
-                      <th>Perform By</th>
-                      <th>Payment Reciving Date</th>
+                      <th>Dosage_Amount</th>
+                      <th>Perform_By</th>
+                      <th>Payment_Reciving_Date</th>
                       <th>FOC</th>
                       <th style={{ textAlign: "center" }}>Action</th>
                       <th>Status</th>
@@ -248,6 +223,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                       transactions.map((item, index) => (
                         <tr key={index}>
                           <td>{item.S_No}</td>
+                          <td>{item.Patient_Name}</td>
                           <td>{item.Care_Of}</td>
                           <td>{item.product}</td>
                           <td>{item.CompleteAddress}</td>
@@ -302,11 +278,11 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
         </Modal.Header>
         <Modal.Body>
           <Form>
-            {/* Client ID & Name */}
+            {/* Serial No & Care Of */}
             <Row className="mb-3">
-              <Col md={6}>
+              <Col md={4}>
                 <Form.Group>
-                  <Form.Label>S_No</Form.Label>
+                  <Form.Label>Serial No</Form.Label>
                   <Form.Control
                     type="text"
                     name="S_No"
@@ -316,9 +292,9 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                   />
                 </Form.Group>
               </Col>
-              <Col md={6}>
+              <Col md={4}>
                 <Form.Group>
-                  <Form.Label>Care_Of</Form.Label>
+                  <Form.Label>Care Of</Form.Label>
                   <Form.Control
                     type="text"
                     name="Care_Of"
@@ -328,9 +304,23 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                   />
                 </Form.Group>
               </Col>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>Patient_Name</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Patient_Name"
+                    value={formData.Patient_Name}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
             </Row>
+
+            {/* Product & Address */}
             <Row className="mb-3">
-              <Col md={6} style={{ position: "relative" }}>
+              <Col md={5} style={{ position: "relative" }}>
                 <Form.Group>
                   <Form.Label>Product</Form.Label>
                   <Form.Control
@@ -340,7 +330,6 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                     onChange={handleInputChange}
                     required
                   />
-                  {/* Suggestions Dropdown */}
                   {suggestions.length > 0 && (
                     <div
                       style={{
@@ -379,7 +368,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                   )}
                 </Form.Group>
               </Col>
-              <Col md={6}>
+              <Col md={7}>
                 <Form.Group>
                   <Form.Label>Complete Address</Form.Label>
                   <Form.Control
@@ -393,7 +382,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
             </Row>
 
-            {/* Issue Date & Delivery Date */}
+            {/* Doctor Name & Contact */}
             <Row className="mb-3">
               <Col md={6}>
                 <Form.Group>
@@ -420,10 +409,12 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                 </Form.Group>
               </Col>
             </Row>
+
+            {/* Sales Representative, Hospital, Delivery Date */}
             <Row className="mb-3">
-              <Col md={4}>
+              <Col md={6}>
                 <Form.Group>
-                  <Form.Label>SR_Name</Form.Label>
+                  <Form.Label>Sales Representative Name</Form.Label>
                   <Form.Control
                     type="text"
                     name="SR_Name"
@@ -433,7 +424,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                   />
                 </Form.Group>
               </Col>
-              <Col md={4}>
+              <Col md={6}>
                 <Form.Group>
                   <Form.Label>Hospital Name</Form.Label>
                   <Form.Control
@@ -445,9 +436,13 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                   />
                 </Form.Group>
               </Col>
+            </Row>
+
+            {/* Invoice, Quantity, Amount */}
+            <Row className="mb-3">
               <Col md={4}>
                 <Form.Group>
-                  <Form.Label>Delivery_Date</Form.Label>
+                  <Form.Label>Delivery Date</Form.Label>
                   <Form.Control
                     type="date"
                     name="Delivery_Date"
@@ -457,23 +452,9 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                   />
                 </Form.Group>
               </Col>
-            </Row>
-            <Row className="mb-3">
               <Col md={4}>
                 <Form.Group>
-                  <Form.Label>Invoice_Number</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="Invoice_Number"
-                    value={formData.Invoice_Number}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label>Qtx Sale</Form.Label>
+                  <Form.Label>Quantity Sale</Form.Label>
                   <Form.Control
                     type="text"
                     name="QtxSale"
@@ -483,6 +464,22 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                   />
                 </Form.Group>
               </Col>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>Invoice No</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Invoice_Number"
+                    value={formData.Invoice_Number}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+
+            {/* Dosage Month & Performed By */}
+            <Row className="mb-3">
               <Col md={4}>
                 <Form.Group>
                   <Form.Label>Amount</Form.Label>
@@ -495,24 +492,9 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                   />
                 </Form.Group>
               </Col>
-            </Row>
-
-            <Row className="mb-3">
-              <Col md={6}>
+              <Col md={4}>
                 <Form.Group>
-                  <Form.Label>Dosage_Month</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="Dosage_Month"
-                    value={formData.Dosage_Month}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={6}>
-                <Form.Group>
-                  <Form.Label>Perform_By</Form.Label>
+                  <Form.Label>Performed By</Form.Label>
                   <Form.Control
                     type="text"
                     name="Perform_By"
@@ -522,11 +504,25 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                   />
                 </Form.Group>
               </Col>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>Dosage Month</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Dosage_Month"
+                    value={formData.Dosage_Month}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </Form.Group>
+              </Col>
             </Row>
+
+            {/* Payment Date & Free of Cost */}
             <Row>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Payment_Reciving_Date</Form.Label>
+                  <Form.Label>Payment Receiving Date</Form.Label>
                   <Form.Control
                     type="date"
                     name="Payment_Reciving_Date"
@@ -538,7 +534,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
               </Col>
               <Col md={6}>
                 <Form.Group>
-                  <Form.Label>Foc</Form.Label>
+                  <Form.Label>Free of Cost</Form.Label>
                   <Form.Control
                     type="text"
                     name="Foc"
@@ -549,6 +545,8 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                 </Form.Group>
               </Col>
             </Row>
+
+            {/* Status */}
             <Form.Group>
               <Form.Label>Status</Form.Label>
               <Form.Select

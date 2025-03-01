@@ -92,6 +92,7 @@ import IconBoxicons from "../Pages/Icons/IconBoxicons"
 // Import Map Pages
 import VectorMaps from "../Pages/Maps/VectorMap";
 import MapsGoogle from "../Pages/Maps/GoogleMap.js";
+import Purchase from "../Pages/Dashboard/Purchase.js";
 
 
 const authProtectedRoutes = [
@@ -114,6 +115,9 @@ const authProtectedRoutes = [
   { path: "/pages-timeline", component: <TimeLine /> },
   { path: "/pages-faqs", component: <FAQs /> },
   { path: "/pages-pricing", component: <Pricing /> },
+
+  // purchase
+  {path: "/purchase", component: <Purchase />},
 
   // UiElements Pages
   { path: "/ui-alerts", component: <UiAlerts /> },

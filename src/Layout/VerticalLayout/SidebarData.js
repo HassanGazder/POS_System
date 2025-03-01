@@ -12,10 +12,10 @@ const SidebarData = [
         badgeValue: "3"
     },
     {
-        label: "Tcs",
+        label: "Purchase",
         icon: "mdi mdi-calendar-outline",
         isHasArrow: true,
-        url: "/calendar",
+        url: "/purchase",
     },
     // {
     //     label: "Email",

@@ -14,7 +14,11 @@ import { Row, Container } from "reactstrap";
 import Breadcrumbs from "../../components/Common/Breadcrumb";
 
 const Dashboard = () => {
-  const [stats, setStats] = useState({ pending: 0, completed: 0, cancelled: 0 });
+  const [stats, setStats] = useState({
+    pending: 0,
+    completed: 0,
+    cancelled: 0,
+  });
   const [transactions, setTransactions] = useState([]);
 
   document.title = "Dashboard | Pharmacy Pos";
@@ -24,26 +28,22 @@ const Dashboard = () => {
         <Container fluid={true}>
           <Breadcrumbs title="Upzet" breadcrumbItem="Dashboard" />
           {/* User Panel Charts */}
-          <UsePanel transactions={transactions}/>
+          <UsePanel transactions={transactions} />
 
           <Row>
-            {/* Overview Chart */}
-            {/* <OverView /> */}
-            {/* Social Source Chart */}
             <SocialSource />
           </Row>
 
           <Row className="mt-4">
             {/* Order Stats */}
-            <OrderStatus stats={stats}/>
+            <OrderStatus stats={stats} />
             {/* Notifications */}
-            <Notifications transactions={transactions}/>
-            {/* Revenue by Location Vector Map */}
-            {/* <RevenueByLocation /> */}
+            <Notifications transactions={transactions} />
           </Row>
-
-          {/* Latest Transaction Table */}
-          <LatestTransation setStats={setStats} setTransactions={setTransactions}/>
+          <LatestTransation
+            setStats={setStats}
+            setTransactions={setTransactions}
+          />
         </Container>
       </div>
     </React.Fragment>

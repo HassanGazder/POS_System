@@ -1,33 +1,28 @@
-import React, { useState, useEffect, useRef } from "react";
-import { Col, Row, Button, Table, Modal, Input, FormGroup, Label } from "reactstrap";
+import React, { useState, useRef } from "react";
+import { Col, Row, Modal, Input, FormGroup, Label } from "reactstrap";
+import { Button, Table } from "react-bootstrap";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faPrint, faFilePdf, faTimes } from "@fortawesome/free-solid-svg-icons";
 import html2pdf from "html2pdf.js";
 
-const CreateQuotation = ({ transactions }) => {
-  const [serialNumber, setSerialNumber] = useState("");
-  const [selectedTransaction, setSelectedTransaction] = useState(null);
+const CreateQuotation = ({ transactions, onClose }) => {
+  const [serialNumbers, setSerialNumbers] = useState("");
+  const [selectedTransactions, setSelectedTransactions] = useState([]);
   const [error, setError] = useState("");
-  const [modal, setModal] = useState(false);
   const printRef = useRef();
 
-  useEffect(() => {
-    if (!modal) {
-      setSerialNumber("");
-      setSelectedTransaction(null);
-      setError("");
-    }
-  }, [modal]);
-
-  const toggleModal = () => {
-    setModal(!modal);
-  };
-
   const handleSearchTransaction = () => {
-    const transaction = transactions.find((t) => String(t.S_No) === serialNumber);
-    if (transaction) {
-      setSelectedTransaction(transaction);
+    const serialArray = serialNumbers.split(",").map((s) => s.trim());
+    const foundTransactions = transactions.filter((t) =>
+      serialArray.includes(String(t.S_No))
+    );
+
+    if (foundTransactions.length > 0) {
+      setSelectedTransactions(foundTransactions);
       setError("");
     } else {
-      setError("Transaction not found for the entered Serial Number!");
+      setError("No transactions found for the entered Serial Numbers!");
+      setSelectedTransactions([]);
     }
   };
 
@@ -46,31 +41,62 @@ const CreateQuotation = ({ transactions }) => {
 
   return (
     <React.Fragment>
-      <Button color="primary" size="sm" onClick={toggleModal}>
-        <i className="mdi mdi-plus-circle me-2"></i> Create Quotation
-      </Button>
-
-      <Modal isOpen={modal} toggle={toggleModal} size="lg" centered>
-      <Button
-          className="btn-close position-absolute top-0 end-0 m-3"
-          onClick={toggleModal}
-          aria-label="Close"
-        ></Button>
-
+      <Modal isOpen={true} toggle={onClose} size="lg" centered>
         <div className="p-4 w-100" style={{ maxWidth: "800px", margin: "0 auto" }}>
-          
+          {/* Header Icons */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            {/* Main Close Button (Top-Left) */}
+            {!selectedTransactions.length && (
+              <FontAwesomeIcon
+                icon={faTimes}
+                size="2x"
+                onClick={onClose}
+                style={{ cursor: "pointer", color: "#6c757d" }} // Grey color
+              />
+            )}
+
+            <h3 className="modal-title mb-0">Create Quotation</h3>
+
+            {/* Print & PDF Buttons (Top-Right) */}
+            {selectedTransactions.length > 0 ? (
+              <div className="d-flex gap-3">
+                <FontAwesomeIcon
+                  icon={faPrint}
+                  size="2x"
+                  onClick={handlePrint}
+                  style={{ cursor: "pointer", color: "#6c757d" }} // Grey color
+                />
+                <FontAwesomeIcon
+                  icon={faFilePdf}
+                  size="2x"
+                  onClick={handleDownloadPDF}
+                  style={{ cursor: "pointer", color: "#6c757d" }} // Grey color
+                />
+                {/* Close Button (Only appears when quotation is shown - Top Right) */}
+                <FontAwesomeIcon
+                  icon={faTimes}
+                  size="2x"
+                  onClick={onClose}
+                  style={{ cursor: "pointer", color: "#6c757d" }}
+                />
+              </div>
+            ) : (
+              <div></div> // Placeholder to maintain alignment
+            )}
+          </div>
+
           {/* Serial Number Input */}
           <FormGroup>
-            <Label for="serialNumber">Enter Serial Number</Label>
+            <Label for="serialNumbers">Enter Serial Numbers (comma separated)</Label>
             <Input
               type="text"
-              id="serialNumber"
-              value={serialNumber}
+              id="serialNumbers"
+              value={serialNumbers}
               onChange={(e) => {
-                setSerialNumber(e.target.value);
+                setSerialNumbers(e.target.value);
                 setError("");
               }}
-              placeholder="Enter S.No"
+              placeholder="Enter S.No, S.No, S.No"
             />
           </FormGroup>
           <Button color="primary" onClick={handleSearchTransaction} className="mb-3 w-100">
@@ -80,14 +106,15 @@ const CreateQuotation = ({ transactions }) => {
           {/* Display error message */}
           {error && <p className="text-danger text-center">{error}</p>}
 
-          {selectedTransaction && (
+          {selectedTransactions.length > 0 && (
             <div ref={printRef}>
-
               {/* Header Section */}
               <Row className="border-bottom pb-3 mb-3">
-                <Col sm={6}><h6 className="fw-bold">In charge Pharmacy</h6></Col>
+                <Col sm={6}>
+                  <h6 className="fw-bold">In charge Pharmacy</h6>
+                </Col>
                 <Col sm={6} className="text-md-end text-center">
-                  <p>{selectedTransaction.Delivery_Date}</p>
+                  <p>{selectedTransactions[0].Delivery_Date}</p>
                 </Col>
               </Row>
 
@@ -95,11 +122,11 @@ const CreateQuotation = ({ transactions }) => {
 
               {/* Quotation Details */}
               <div className="border p-3 mb-3">
-                <p><strong>Hospital Name:</strong> {selectedTransaction.HospitalName}</p>
-                <p><strong>Address:</strong> {selectedTransaction.CompleteAddress}</p>
+                <p><strong>Hospital Name:</strong> {selectedTransactions[0].HospitalName}</p>
+                <p><strong>Address:</strong> {selectedTransactions[0].CompleteAddress}</p>
                 <p><strong>Subject:</strong> Perform By</p>
                 <p>
-                  Keeping in view the role of {selectedTransaction.HospitalName} in
+                  Keeping in view the role of {selectedTransactions[0].HospitalName} in
                   managing the treatment of cancer patients, we are pleased to offer
                   you the best prices for the following medicines.
                 </p>
@@ -119,14 +146,16 @@ const CreateQuotation = ({ transactions }) => {
                     </tr>
                   </thead>
                   <tbody>
-                    <tr>
-                      <td>{selectedTransaction.S_No}</td>
-                      <td>{selectedTransaction.product}</td>
-                      <td>{selectedTransaction.product}</td>
-                      <td>{selectedTransaction.DoctorName}</td>
-                      <td>{selectedTransaction.SR_Name}</td>
-                      <td>{selectedTransaction.Amount}</td>
-                    </tr>
+                    {selectedTransactions.map((transaction, index) => (
+                      <tr key={index}>
+                        <td>{transaction.S_No}</td>
+                        <td>{transaction.product}</td>
+                        <td>{transaction.product}</td>
+                        <td>{transaction.DoctorName}</td>
+                        <td>{transaction.SR_Name}</td>
+                        <td>{transaction.Amount}</td>
+                      </tr>
+                    ))}
                   </tbody>
                 </Table>
               </div>
@@ -135,30 +164,18 @@ const CreateQuotation = ({ transactions }) => {
               <div className="mt-4 border-top pt-3">
                 <p>It would be a matter of great honor for us to serve your institution.</p>
                 <p>Looking forward.</p>
-                <br/>
-                <br/>
+                <br />
+                <br />
 
                 <p>Thanks and Regards,</p>
-                <br/>
-                <br/>
-                <br/>
-                <br/>
+                <br />
+                <br />
+                <br />
+                <br />
                 <p><strong>Rajab Ali</strong></p>
                 <p>Oncostele Pharma</p>
               </div>
-
             </div>
-          )}
-        </div>
-
-        {/* Modal Footer (Responsive Buttons) */}
-        <div className="modal-footer d-flex flex-wrap justify-content-center">
-          <Button color="secondary" onClick={toggleModal} className="m-1 w-100 w-md-auto">Close</Button>
-          {selectedTransaction && (
-            <>
-              <Button color="primary" onClick={handlePrint} className="m-1 w-100 w-md-auto">Print Quotation</Button>
-              <Button color="danger" onClick={handleDownloadPDF} className="m-1 w-100 w-md-auto">Download PDF</Button>
-            </>
           )}
         </div>
       </Modal>
