@@ -94,10 +94,16 @@ import VectorMaps from "../Pages/Maps/VectorMap";
 import MapsGoogle from "../Pages/Maps/GoogleMap.js";
 import Purchase from "../Pages/Dashboard/Purchase.js";
 
+// context api
+import { DashboardProvider } from "../Pages/Dashboard/DashboardContext";
+
 
 const authProtectedRoutes = [
   //dashboard
-  { path: "/dashboard", component: <Dashboard /> },
+  { path: "/dashboard", component: (<DashboardProvider><Dashboard /></DashboardProvider> )},
+
+  // purchase
+  {path: "/purchase", component: (<DashboardProvider ><Purchase /></DashboardProvider>)},
 
   // Calender
   { path: "/calendar", component: <Calender /> },
@@ -116,8 +122,6 @@ const authProtectedRoutes = [
   { path: "/pages-faqs", component: <FAQs /> },
   { path: "/pages-pricing", component: <Pricing /> },
 
-  // purchase
-  {path: "/purchase", component: <Purchase />},
 
   // UiElements Pages
   { path: "/ui-alerts", component: <UiAlerts /> },

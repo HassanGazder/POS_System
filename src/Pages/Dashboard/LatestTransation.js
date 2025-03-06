@@ -1,8 +1,10 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback ,useContext} from "react";
 import { Row, Col } from "reactstrap";
 import { Modal, Button, Form, Table } from "react-bootstrap";
-// import OrderStatus from "./OrderStatus";
-const LatestTransaction = ({ setStats, setTransactions }) => {
+// context api 
+import { DashboardContext } from "../../Pages/Dashboard/DashboardContext";
+const LatestTransaction = () => {
+  const {setStats, setTransactions} = useContext(DashboardContext);
   const [transactions, setLocalTransactions] = useState([]);
   const [formData, setFormData] = useState({
     S_No: "1",
@@ -57,7 +59,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
       Contact: "10gm",
       SR_Name: "white",
       HospitalName: "",
-      Delivery_Date: "1",
+      Delivery_Date: "",
       Invoice_Number: "",
       QtxSale: "10",
       Amount: "10",
@@ -215,7 +217,7 @@ const LatestTransaction = ({ setStats, setTransactions }) => {
                   <tbody>
                     {transactions.length === 0 ? (
                       <tr>
-                        <td colSpan="18" className="text-center">
+                        <td colSpan="19" className="text-center">
                           No records available
                         </td>
                       </tr>

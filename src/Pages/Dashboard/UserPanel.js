@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 import {
   Card,
   CardBody,
@@ -12,19 +12,28 @@ import {
   ModalHeader,
   ModalBody,
 } from "reactstrap";
+import { faUniversity } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import RadialChart1 from "./userpanelChart1";
 import RadialChart2 from "./userpanelChart2";
 import CreateInvoice from "./CreateInvoice";
 import Createquotation from "./Createquotation";
 import CreateSalesInvoice from "./CreateSalesInvoice";
+import { DashboardContext } from "../../Pages/Dashboard/DashboardContext";
+import CreatePurchaseInvoice from "./CreatePurchaseInvoice";
 
-const UserPanel = ({ transactions }) => {
+const UserPanel = () => {
+  const {purchases} = useContext(DashboardContext)
+  const { transactions } = useContext(DashboardContext);
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [selectedInvoice, setSelectedInvoice] = useState(null);
   const [modalOpen, setModalOpen] = useState(false);
+  const [bankDropdownOpen, setBankDropdownOpen] = useState(false);
+  const [selectedBankName, setSelectedBankName] = useState("Select a Bank");
 
   const toggleDropdown = () => setDropdownOpen(!dropdownOpen);
   const toggleModal = () => setModalOpen(!modalOpen);
+  const toggleBankDropdown = () => setBankDropdownOpen(!bankDropdownOpen);
 
   const handleInvoiceSelection = (type) => {
     setModalOpen(false); // Close modal first
@@ -37,24 +46,26 @@ const UserPanel = ({ transactions }) => {
     }, 200); // Small delay to prevent UI glitches
   };
 
-  // const renderModalContent = () => {
-  //   if (!selectedInvoice) return null;
-  //   switch (selectedInvoice) {
-  //     case "invoice":
-  //       return <CreateInvoice transactions={transactions} />;
-  //     case "quotation":
-  //       return <Createquotation transactions={transactions} />;
-  //     case "sales":
-  //       return <CreateSalesInvoice transactions={transactions} />;
-  //     default:
-  //       return null;
-  //   }
-  // };
+  const handleBankSelection = (bankName) => {
+    setSelectedBankName(bankName);
+  };
+  const banksInPakistan = [
+    "HBL - Habib Bank Limited",
+    "MCB - Muslim Commercial Bank",
+    "UBL - United Bank Limited",
+    "Allied Bank",
+    "Bank Alfalah",
+    "Meezan Bank",
+    "Standard Chartered",
+    "Faysal Bank",
+    "Askari Bank",
+    "National Bank of Pakistan (NBP)",
+  ];
 
   return (
     <React.Fragment>
       <Row>
-        {/* Total Payment */}
+        {/* Expense */}
         <Col xl={3} sm={6}>
           <Card className="h-100 w-100">
             <CardBody className="d-flex flex-column">
@@ -63,7 +74,7 @@ const UserPanel = ({ transactions }) => {
                   <RadialChart1 />
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Total Payment</p>
+                  <p className="mb-1">Expense</p>
                   <h5 className="mb-3">5000</h5>
                 </div>
               </div>
@@ -71,23 +82,7 @@ const UserPanel = ({ transactions }) => {
           </Card>
         </Col>
 
-        {/* bank */}
-        <Col xl={3} sm={6}>
-          <Card className="h-100 w-100">
-            <CardBody className="d-flex flex-column">
-              <div className="d-flex text-muted">
-                <div className="flex-shrink-0 me-3 align-self-center">
-                  <RadialChart1 />
-                </div>
-                <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Bank</p>
-                  <h5 className="mb-3">5000</h5>
-                </div>
-              </div>
-            </CardBody>
-          </Card>
-        </Col>
-        {/* salleries */}
+        {/* Salleries */}
         <Col xl={3} sm={6}>
           <Card className="h-100 w-100">
             <CardBody className="d-flex flex-column">
@@ -103,6 +98,45 @@ const UserPanel = ({ transactions }) => {
             </CardBody>
           </Card>
         </Col>
+        {/* salleries */}
+
+        {/* bank */}
+        <Col xl={3} sm={6}>
+          <Card className="h-100 w-100">
+            <CardBody className="d-flex flex-column">
+              <div className="d-flex text-muted">
+                <div className="flex-shrink-0 me-3 align-self-center"></div>
+                <div className="flex-grow-1 overflow-hidden">
+                  <p className="mb-1">Bank</p>
+                  <h5 className="mb-3">{selectedBankName}</h5>
+                </div>
+              </div>
+
+              {/* Dropdown Button with Bank Icon */}
+              <Dropdown
+                isOpen={bankDropdownOpen}
+                toggle={toggleBankDropdown}
+                className="mt-3"
+              >
+                <DropdownToggle color="primary" caret block>
+                  <FontAwesomeIcon icon={faUniversity} className="me-2" />{" "}
+                  {/* Bank Icon */}
+                  Select Bank
+                </DropdownToggle>
+                <DropdownMenu>
+                  {banksInPakistan.map((bank, index) => (
+                    <DropdownItem
+                      key={index}
+                      onClick={() => handleBankSelection(bank)}
+                    >
+                      {bank}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            </CardBody>
+          </Card>
+        </Col>
 
         {/* Expense */}
         <Col xl={3} sm={6}>
@@ -113,7 +147,7 @@ const UserPanel = ({ transactions }) => {
                   <RadialChart2 />
                 </div>
                 <div className="flex-grow-1 overflow-hidden">
-                  <p className="mb-1">Expense</p>
+                  <p className="mb-1">Total Payment</p>
                   <h5 className="mb-3">1500</h5>
                 </div>
               </div>
@@ -143,6 +177,11 @@ const UserPanel = ({ transactions }) => {
                   </DropdownItem>
                   <DropdownItem onClick={() => handleInvoiceSelection("sales")}>
                     Create Sales Invoice
+                  </DropdownItem>
+                  <DropdownItem
+                    onClick={() => handleInvoiceSelection("purchase")}
+                  >
+                    Create Purchase Invoice
                   </DropdownItem>
                 </DropdownMenu>
               </Dropdown>
@@ -175,6 +214,9 @@ const UserPanel = ({ transactions }) => {
               transactions={transactions}
               onClose={toggleModal}
             />
+          )}
+          {selectedInvoice === "purchase" && (
+            <CreatePurchaseInvoice isOpen={modalOpen} toggle={toggleModal} purchases={purchases} />
           )}
         </ModalBody>
       </Modal>

@@ -1,9 +1,12 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef ,useContext} from "react";
 import { Col, Row, Modal, Input, FormGroup, Label } from "reactstrap";
 import { Button, Table } from "react-bootstrap";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPrint, faFilePdf, faTimes } from "@fortawesome/free-solid-svg-icons";
 import html2pdf from "html2pdf.js";
+
+// context api 
+import { DashboardContext } from "../../Pages/Dashboard/DashboardContext";
 
 const numberToWords = (num) => {
   const a = [
@@ -62,7 +65,8 @@ const numberToWords = (num) => {
   return num ? convert(num) + " Only" : "";
 };
 
-const CreateSalesInvoice = ({ transactions, onClose }) => {
+const CreateSalesInvoice = ({ onClose }) => {
+   const { transactions } = useContext(DashboardContext);
   const [serialNumbers, setSerialNumbers] = useState("");
   const [selectedTransactions, setSelectedTransactions] = useState([]);
   const [error, setError] = useState("");

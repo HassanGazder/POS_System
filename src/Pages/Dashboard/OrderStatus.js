@@ -1,10 +1,9 @@
 // import { OrderStatusData } from '../../CommonData/Data/index';
-import React from "react";
+import React, { useContext } from "react";
 import { Card, CardBody, CardTitle, Col } from "reactstrap";
-
-const OrderStatus = ({
-  stats = { pending: 0, completed: 0, cancelled: 0 },
-}) => {
+import { DashboardContext } from "./DashboardContext";
+const OrderStatus = ()=>{
+const {stats} = useContext(DashboardContext)
   return (
     <React.Fragment>
       <Col>
@@ -87,6 +86,8 @@ const OrderStatus = ({
       </Col>
     </React.Fragment>
   );
-};
+}
+
+
 
 export default OrderStatus;
