@@ -1,0 +1,236 @@
+import React, { useContext, useState } from "react";
+import Breadcrumbs from "../../components/Common/Breadcrumb";
+import { Container, Row, Col } from "reactstrap";
+import { Modal, Button, Form, Table } from "react-bootstrap";
+import { DashboardContext } from "../../Pages/Dashboard/DashboardContext";
+import CreatePurchaseInvoice from "./CreatePurchaseInvoice";
+
+const Purchase = () => {
+  const { setPurchases } = useContext(DashboardContext);
+  const [purchases, setLocalPurchases] = useState([]);
+  const [formData, setFormData] = useState({
+    // ... (initial state remains unchanged)
+  });
+
+  const [showModal, setShowModal] = useState(false);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editIndex, setEditIndex] = useState(null);
+
+  const handleAddRecord = () => {
+    formData.S_No = purchases.length
+      ? Math.max(...purchases.map((t) => t.S_No)) + 1
+      : 1;
+    let updatedPurchases = [...purchases];
+    const totalValue =
+      Number(formData.Quantity) * Number(formData.Unit_Price) || 0;
+    const salesTax = Number(formData.SalesTax) || 0;
+    const advanceTax = Number(formData.Advance_Tax) || 0;
+    const furtherTax = Number(formData.Further_Tax) || 0;
+    const discount = Number(formData.Discount) || 0;
+
+    const totalGrossAmount = totalValue + salesTax + advanceTax + furtherTax - discount;
+
+    const updatedFormData = {
+      ...formData,
+      Total_Value: totalValue.toFixed(0),
+      Total_Gross_Amount: totalGrossAmount.toFixed(0),
+      Balance: (
+        totalGrossAmount - (Number(formData.Total_Value_Incl_Tax) || 0)
+      ).toFixed(0),
+    };
+
+    if (isEditMode) {
+      updatedPurchases[editIndex] = updatedFormData;
+      setIsEditMode(false);
+      setEditIndex(null);
+    } else {
+      updatedPurchases.push(updatedFormData);
+    }
+
+    setPurchases(updatedPurchases);
+    setLocalPurchases(updatedPurchases);
+    resetForm();
+    setShowModal(false);
+  };
+
+  const handleFieldChange = (field, value) => {
+    const updatedFormData = { ...formData, [field]: value };
+
+    // Recalculate Total Gross Amount and Balance
+    const totalValue =
+      Number(updatedFormData.Quantity) * Number(updatedFormData.Unit_Price) ||
+      0;
+    const salesTax = Number(updatedFormData.SalesTax) || 0;
+    const advanceTax = Number(updatedFormData.Advance_Tax) || 0;
+    const furtherTax = Number(updatedFormData.Further_Tax) || 0;
+    const discount = Number(updatedFormData.Discount) || 0;
+
+    const totalGrossAmount = totalValue + salesTax + advanceTax + furtherTax - discount;
+    const totalValueInclTax = Number(updatedFormData.Total_Value_Incl_Tax) || 0;
+    const balance = totalGrossAmount - totalValueInclTax;
+
+    updatedFormData.Total_Value = totalValue.toFixed(0);
+    updatedFormData.Total_Gross_Amount = totalGrossAmount.toFixed(0);
+    updatedFormData.Balance = balance.toFixed(0);
+
+    setFormData(updatedFormData);
+  };
+
+  const getBalanceClass = (balance) => {
+    if (balance === "0.00") {
+      return "text-success"; // Paid
+    } else if (parseFloat(balance) < 0) {
+      return "text-danger"; // Overpaid
+    }
+    return ""; // Default
+  };
+
+  // ... (rest of the component remains unchanged)
+
+  return (
+    <React.Fragment>
+      <div className="page-content">
+        <Container fluid={true}>
+          <Breadcrumbs title="Upzet" breadcrumbItem="Purchase" />
+          <CreatePurchaseInvoice />
+          <Row>
+            <Col lg={12}>
+              <div className="card">
+                <div className="card-body">
+                  <div className="d-flex align-items-center justify-content-between mb-4">
+                    <h4 className="card-title mb-0">Purchase Records</h4>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setShowModal(true)}
+                    >
+                      <i className="mdi mdi-plus-circle me-2"></i> Add Purchase
+                    </Button>
+                  </div>
+                  <div
+                    className="table-responsive"
+                    style={{
+                      maxHeight: "500px",
+                      overflowY: "auto",
+                      overflowX: "auto",
+                      whiteSpace: "nowrap",
+                    }}
+                  >
+                    <Table
+                      className="table-centered mb-0"
+                      striped
+                      bordered
+                      hover
+                      style={{ minWidth: "1200px" }}
+                    >
+                      <thead>
+                        <tr>
+                          {/* ... (table headers remain unchanged) */}
+                          <th style={{ textAlign: "center" }}>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {purchases.length === 0 ? (
+                          <tr>
+                            <td colSpan="36" className="text-center">
+                              No records available
+                            </td>
+                          </tr>
+                        ) : (
+                          purchases.map((item, index) => (
+                            <tr key={index}>
+                              {/* ... (other cells remain unchanged) */}
+                              <td className={getBalanceClass(item.Balance)}>
+                                {item.Balance === "0.00"
+                                  ? "Paid"
+                                  : item.Balance}
+                              </td>
+                              <td style={{ textAlign: "center" }}>
+                                <div className="d-flex justify-content-center gap-2">
+                                  <Button
+                                    variant="outline-success"
+                                    size="sm"
+                                    onClick={() => handleEditRecord(index)}
+                                  >
+                                    Edit
+                                  </Button>
+                                  <Button
+                                    variant="outline-danger"
+                                    size="sm"
+                                    onClick={() => handleDeleteRecord(index)}
+                                  >
+                                    Delete
+                                  </Button>
+                                </div>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </Table>
+                  </div>
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </Container>
+      </div>
+
+      {/* Modal */}
+      <Modal
+        dialogClassName="modal-lg"
+        show={showModal}
+        onHide={() => setShowModal(false)}
+        centered
+      >
+        <Modal.Header closeButton>
+          <Modal.Title>
+            {isEditMode ? "Edit Purchase Record" : "Add New Purchase Record"}
+          </Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          <Form>
+            {/* ... (form fields remain unchanged) */}
+            <Row className="mb-3">
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>Total Value Incl Tax</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Total_Value_Incl_Tax"
+                    value={formData.Total_Value_Incl_Tax}
+                    onChange={(e) =>
+                      handleFieldChange("Total_Value_Incl_Tax", e.target.value)
+                    }
+                  />
+                </Form.Group>
+              </Col>
+              <Col md={4}>
+                <Form.Group>
+                  <Form.Label>Balance</Form.Label>
+                  <Form.Control
+                    type="text"
+                    name="Balance"
+                    value={formData.Balance}
+                    readOnly
+                    className={getBalanceClass(formData.Balance)}
+                  />
+                </Form.Group>
+              </Col>
+            </Row>
+          </Form>
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={() => setShowModal(false)}>
+            Close
+          </Button>
+          <Button variant="primary" onClick={handleAddRecord}>
+            {isEditMode ? "Update Record" : "Add Record"}
+          </Button>
+        </Modal.Footer>
+      </Modal>
+    </React.Fragment>
+  );
+};
+
+export default Purchase;

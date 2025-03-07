@@ -6,7 +6,7 @@ import { faPrint, faFilePdf, faTimes } from "@fortawesome/free-solid-svg-icons";
 import html2pdf from "html2pdf.js";
 import { DashboardContext } from "../../Pages/Dashboard/DashboardContext";
 
-const CreatePurchaseInvoice = ({ isOpen, toggle }) => {
+const CreatePurchaseInvoice = ({ isOpen, onClose }) => {
   const { purchases } = useContext(DashboardContext);
   const [serialNumbers, setSerialNumbers] = useState("");
   const [selectedPurchases, setSelectedPurchases] = useState([]);
@@ -37,12 +37,33 @@ const CreatePurchaseInvoice = ({ isOpen, toggle }) => {
   };
 
   return (
-    <Modal isOpen={isOpen} toggle={toggle} size="lg" centered>
+    <Modal isOpen={isOpen} toggle={onClose} size="lg" centered>
       <div className="p-4 w-100" style={{ maxWidth: "900px", margin: "0 auto" }}>
-        {/* Header Icons */}
+        {/* Header with Title & Actions */}
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3 className="modal-title mb-0">Create Purchase Invoice</h3>
-          <FontAwesomeIcon icon={faTimes} size="2x" onClick={toggle} style={{ cursor: "pointer", color: "#6c757d" }} />
+          {selectedPurchases.length > 0 && (
+            <div className="d-flex gap-3">
+              <FontAwesomeIcon
+                icon={faPrint}
+                size="2x"
+                onClick={handlePrint}
+                style={{ cursor: "pointer", color: "#6c757d" }}
+              />
+              <FontAwesomeIcon
+                icon={faFilePdf}
+                size="2x"
+                onClick={handleDownloadPDF}
+                style={{ cursor: "pointer", color: "#6c757d" }}
+              />
+              <FontAwesomeIcon
+                icon={faTimes}
+                size="2x"
+                onClick={onClose}
+                style={{ cursor: "pointer", color: "#6c757d" }}
+              />
+            </div>
+          )}
         </div>
 
         {/* Serial Number Input */}
@@ -78,36 +99,34 @@ const CreatePurchaseInvoice = ({ isOpen, toggle }) => {
             </div>
 
             {/* Purchase Items Table */}
-            <div className="table-responsive">
-              <Table bordered className="text-center">
-                <thead>
-                  <tr>
-                    <th>S.No</th>
-                    <th>Product</th>
-                    <th>Pack Size</th>
-                    <th>Batch No</th>
-                    <th>Expiry Date</th>
-                    <th>Quantity</th>
-                    <th>Unit Price</th>
-                    <th>Total</th>
+            <Table bordered className="text-center">
+              <thead>
+                <tr>
+                  <th>S.No</th>
+                  <th>Product</th>
+                  <th>Pack Size</th>
+                  <th>Batch No</th>
+                  <th>Expiry Date</th>
+                  <th>Quantity</th>
+                  <th>Unit Price</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                {selectedPurchases.map((purchase, index) => (
+                  <tr key={index}>
+                    <td>{purchase.S_No}</td>
+                    <td>{purchase.Product_Description}</td>
+                    <td>{purchase.Pack_Size}</td>
+                    <td>{purchase.Batch_No}</td>
+                    <td>{purchase.Expiry_Date}</td>
+                    <td>{purchase.Quantity}</td>
+                    <td>{purchase.Unit_Price}</td>
+                    <td>{purchase.Total_Value}</td>
                   </tr>
-                </thead>
-                <tbody>
-                  {selectedPurchases.map((purchase, index) => (
-                    <tr key={index}>
-                      <td>{purchase.S_No}</td>
-                      <td>{purchase.Product_Description}</td>
-                      <td>{purchase.Pack_Size}</td>
-                      <td>{purchase.Batch_No}</td>
-                      <td>{purchase.Expiry_Date}</td>
-                      <td>{purchase.Quantity}</td>
-                      <td>{purchase.Unit_Price}</td>
-                      <td>{purchase.Total_Value}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </Table>
-            </div>
+                ))}
+              </tbody>
+            </Table>
 
             {/* Invoice Totals */}
             <div className="border p-3 mt-3">
@@ -120,16 +139,6 @@ const CreatePurchaseInvoice = ({ isOpen, toggle }) => {
               <p><strong>Payment Mode:</strong> {selectedPurchases[0].Payment_Through}</p>
               <p><strong>Payment Number:</strong> {selectedPurchases[0].Payment_Number}</p>
               <p className="fw-bold"><strong>Total Amount Incl. Tax:</strong> {selectedPurchases[0].Total_Value_Incl_Tax}</p>
-            </div>
-
-            {/* Print & PDF Buttons */}
-            <div className="text-center mt-4">
-              <Button variant="secondary" onClick={handlePrint} className="me-3">
-                <FontAwesomeIcon icon={faPrint} /> Print
-              </Button>
-              <Button variant="danger" onClick={handleDownloadPDF}>
-                <FontAwesomeIcon icon={faFilePdf} /> Download PDF
-              </Button>
             </div>
           </div>
         )}

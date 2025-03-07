@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useCallback ,useContext} from "react";
+import React, { useState, useEffect, useCallback, useContext } from "react";
 import { Row, Col } from "reactstrap";
 import { Modal, Button, Form, Table } from "react-bootstrap";
-// context api 
+// context api
 import { DashboardContext } from "../../Pages/Dashboard/DashboardContext";
 const LatestTransaction = () => {
-  const {setStats, setTransactions} = useContext(DashboardContext);
+  const { setStats, setTransactions } = useContext(DashboardContext);
   const [transactions, setLocalTransactions] = useState([]);
   const [formData, setFormData] = useState({
-    S_No: "1",
-    Patient_Name:"abc",
+    S_No: 0,
+    Patient_Name: "abc",
     Care_Of: "hassan",
     product: "10",
     CompleteAddress: "1",
@@ -31,8 +31,10 @@ const LatestTransaction = () => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [editIndex, setEditIndex] = useState(null);
 
-
   const handleAddRecord = () => {
+    formData.S_No = transactions.length
+      ? Math.max(...transactions.map((t) => t.S_No)) + 1
+      : 1; // ✅ Increment serial number
     let updatedTransactions = [...transactions];
 
     if (isEditMode) {
@@ -49,26 +51,27 @@ const LatestTransaction = () => {
     setTransactions(updatedTransactions);
 
     // Reset form and close modal
-    setFormData({
-      S_No: "1",
-      Patient_Name:"abc",
-      Care_Of: "hassan",
-      product: "10",
-      CompleteAddress: "1",
-      DoctorName: "abc",
-      Contact: "10gm",
-      SR_Name: "white",
+    const getInitialFormData = () => ({
+      S_No: 0,
+      Patient_Name: "",
+      Care_Of: "",
+      product: "",
+      CompleteAddress: "",
+      DoctorName: "",
+      Contact: "",
+      SR_Name: "",
       HospitalName: "",
-      Delivery_Date: "",
+      Delivery_Date: new Date().toISOString().split("T")[0],
       Invoice_Number: "",
-      QtxSale: "10",
-      Amount: "10",
+      QtxSale: "",
+      Amount: "",
       Dosage_Month: "",
       Perform_By: "",
       Payment_Reciving_Date: "",
       Foc: "",
       Status: "",
     });
+    setFormData(getInitialFormData());
 
     setShowModal(false);
   };
@@ -282,19 +285,7 @@ const LatestTransaction = () => {
           <Form>
             {/* Serial No & Care Of */}
             <Row className="mb-3">
-              <Col md={4}>
-                <Form.Group>
-                  <Form.Label>Serial No</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="S_No"
-                    value={formData.S_No}
-                    onChange={handleInputChange}
-                    required
-                  />
-                </Form.Group>
-              </Col>
-              <Col md={4}>
+              <Col md={6}>
                 <Form.Group>
                   <Form.Label>Care Of</Form.Label>
                   <Form.Control
@@ -306,7 +297,7 @@ const LatestTransaction = () => {
                   />
                 </Form.Group>
               </Col>
-              <Col md={4}>
+              <Col md={6}>
                 <Form.Group>
                   <Form.Label>Patient_Name</Form.Label>
                   <Form.Control

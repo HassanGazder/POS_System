@@ -51,15 +51,9 @@ const UserPanel = () => {
   };
   const banksInPakistan = [
     "HBL - Habib Bank Limited",
-    "MCB - Muslim Commercial Bank",
-    "UBL - United Bank Limited",
-    "Allied Bank",
-    "Bank Alfalah",
     "Meezan Bank",
-    "Standard Chartered",
-    "Faysal Bank",
-    "Askari Bank",
-    "National Bank of Pakistan (NBP)",
+    "Easypaisa",
+    "JazzCash",
   ];
 
   return (
@@ -216,7 +210,7 @@ const UserPanel = () => {
             />
           )}
           {selectedInvoice === "purchase" && (
-            <CreatePurchaseInvoice isOpen={modalOpen} toggle={toggleModal} purchases={purchases} />
+            <CreatePurchaseInvoice isOpen={modalOpen} onClose={toggleModal} purchases={purchases} />
           )}
         </ModalBody>
       </Modal>
